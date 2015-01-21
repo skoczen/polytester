@@ -197,7 +197,7 @@ Just write your own output parser class, stick it somewhere on your python path,
     - `results.output` - The stdout and stderr, in the order produced while running.
     - `results.retcode` - The return code.
     - `results.parser` - An instance of the parser class. (i.e. you can call `result.parser.num_failed(result)`).
-    - `results.passed` - A in boolean indicating if the tests have passed. `None` until a definitive answer is known.
+    - `results.passed` - A boolean indicating if the tests have passed. `None` until a definitive answer is known.
 
 
 2. Specify it in your test.yml file
