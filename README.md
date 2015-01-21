@@ -25,17 +25,29 @@ pip install polytester
 1. Create a tests.yml file. The following example shows django, jasmine, and protractor tests.
 
 ```yml
-python: 
+api:
     command: python manage.py test
 js:
     command: jasmine
 e2e:
     command: karma e2e
 ```
-2. Run `pt`
+2. Run `polytester`
 
 ```
-Output
+$ polytester
+Detecting...
+  ✓ api detected as Django tests.
+  ✓ js detected as Jasmine tests.
+  ✓ e2e detected as Karma tests.
+
+Running tests...
+  ✓ api passed.
+  ✓ js passed.
+  ✓ e2e passed.
+
+✓ All tests passed.
+
 ```
 
 Note that the status code is correct, so you can just dump this on your CI service, and be done.
@@ -59,7 +71,17 @@ There are a variety of options to make development simple.
 - `--autoreload - alias for `--ci`
 - `--parallel n m` - In parallel build test environments, only runs test chunk `n` of `m`
 - `--config foo.yml` - specifies a different location for the config file.  Default is tests.yml
+- `--[test_name]` - just runs the test(s) specified. I.e `--e2e`.  Comma-separating is fine.
 
+# Supported Parsers
+
+Out of the box, polytester supports the following parsers.  More are welcome via PR, and as you'll see below, writing them is easy!
+
+- [Python Nose](https://nose.readthedocs.org/en/latest/)
+- [Django](https://www.djangoproject.com/)
+- [Jasmine](http://jasmine.github.io/)
+- [Karma](http://karma-runner.github.io/)
+- [Salad](https://github.com/salad/salad)
 
 # Advanced usage
 
@@ -68,19 +90,17 @@ If you want to get more out of polytester, there's more under the surface, inclu
 
 ## Specifying test frameworks
 
-For lots of common frameworks, you just specify the type of test framework you're running, and you're done.  Polytester actually does some basic autodetction, so if you're using the built-in commands, it shouldn't be necessary. For our first example, that'd be:
+If you're using the default test command for any supported frameworks, polytester just detects the right one, and you're on your way.
+
+However, if you're using a custom runner, or something a bit special, you can easily just specify which parser polytester should use.
+
+Let's say for reasons too complex to explain, I have a custom wrapper around my nose script. No problem.  In my `tests.yml`, I just specify it.
+
 
 ```yml
 python: 
     command: my_custom_nose_script.sh
     parser: polytester.NoseParser
-    watch_glob: **/*.py
-js:
-    command: jasmine
-    # type: jasmine
-e2e:
-    command: karma e2e
-    type: karma
 ```
 
 Now, when you run, you get this output:
@@ -106,7 +126,7 @@ python:
 2. Run with `--autoreload`
 
 ```bash
-pt --autoreload
+polytester --autoreload
 ```
 
 Any time you change a file that matches the glob, polytester will immediately run those the matching test suite.  Any running tests will be immediately killed.
@@ -118,7 +138,7 @@ If you've got a custom framework, or one that's not bundled yet, no problem.
 
 Just write your own output parser class, stick it somewhere on your python path, put in in your `tests.yml` file, and you're good to go.  Here's an example for pep8.
 
-Please note - if you're writing for a common framework, please submit a pull request!
+**Please note** - if you're writing for a common framework, please submit a pull request!
 
 
 1. Write your own parser
