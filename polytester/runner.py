@@ -9,11 +9,11 @@ import time
 import traceback
 import subprocess
 import sys
-from yaml import load, dump
+from yaml import load
 from yaml.scanner import ScannerError
 
-from parsers import BaseParser, DefaultParser, DjangoParser
-from util import Bunch
+from .parsers import BaseParser, DefaultParser, DjangoParser
+from .util import Bunch
 
 BUNDLED_PARSERS = [BaseParser, DefaultParser, DjangoParser]
 DEFAULT_PARSER = DefaultParser
@@ -53,7 +53,7 @@ class PolytesterRunner(object):
             except ScannerError:
                 self._print_error("Trouble parsing %s." % config_file)
                 self._nice_traceback_and_quit()
-            except Exception, e:
+            except:
                 self._fail(puts(traceback.format_exc()))
 
             for name, options in self.test_config.items():
@@ -147,19 +147,19 @@ class PolytesterRunner(object):
                 passed=None,
             )
         while len(processes.items()) > 0:
-            for name, p in processes.items():
+            for name, p in list(processes.items()):
                 while p.poll() is None:
                     line = self.non_blocking_read(p.stdout)
                     if line:
-                        results[name].output += "\n%s" % line
+                        results[name].output += "\n%s" % line.decode("utf-8")
                     time.sleep(0.5)
 
                 if p.returncode is not None:
                     out, err = p.communicate()
                     if out:
-                        results[name].output += "\n%s" % out
+                        results[name].output += "\n%s" % out.decode("utf-8")
                     if err:
-                        results[name].output += "\n%s" % err
+                        results[name].output += "\n%s" % err.decode("utf-8")
                     results[name].retcode = p.returncode
                     del processes[name]
 
@@ -188,7 +188,9 @@ class PolytesterRunner(object):
                     puts(colored.red("✘ %s -%s tests failed." % (name, pass_string)))
                     
                     with indent(2):
-                        puts("%s" % r.output)
+                        puts(u"%s" % r.output)
+
+                            
                 else:
                     try:
                         if r.parser.hasattr("num_passes"):
@@ -200,6 +202,7 @@ class PolytesterRunner(object):
                     puts(colored.green("✔" + " %s -%s tests passed." % (name, pass_string)))
 
         if all_passed:
+            puts()
             puts(colored.green("All tests passed."))
             puts()
         else:

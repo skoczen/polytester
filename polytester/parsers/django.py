@@ -23,7 +23,7 @@ class DjangoParser(DefaultParser):
         # FAILED (failures=1, errors=1)
         # FAILED (errors=1)
         m = re.search(result.output, 'FAILED \(failures=\d+\)')
-        print int(m.group(0))
+        # print(int(m.group(0)))
         return int(m.group(0))
 
     

@@ -1,4 +1,4 @@
-from runner import PolytesterRunner
+from .runner import PolytesterRunner
 
 
 def main():
