@@ -38,16 +38,17 @@ setup(
     keywords = ["test", "multi-language", "nose", "karma", "jasmine", "rails", "runner", "junit"],
     classifiers=[
         "Programming Language :: Python",
-        "License :: OSI Approved :: BSD License",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
         "Development Status :: 4 - Beta",
         "Environment :: Web Environment",
         "Intended Audience :: Developers",
-        "Topic :: Internet :: WWW/HTTP",
+        "Topic :: Software Development :: Testing",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     entry_points={
-        'console_scripts': ['pt = polytester.scripts.polytester:main', 'polytester = polytester.scripts.polytester:main'],
+        'console_scripts': ['pt = polytester.main:main', 'polytester = polytester.main:main'],
     },
 
 )

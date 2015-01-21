@@ -1,8 +1,3 @@
-> NOTE:  Polytester is being built via [Readme Driven Development](http://tom.preston-werner.com/2010/08/23/readme-driven-development.html), so as of January 22, 2015, not everything is done yet.
-> 
-> But I work fast.  Expect everything here to be supported soon.
-
-
 Polytester is a simple multi-language test runner.
 
 It makes it easy to run tests in your polygot projects.  Run python, javascript, ruby, java, and more side by side. Easily.
@@ -13,6 +8,9 @@ It's also easily extensible to any testing framework that runs in the shell (tha
 
 Polytester was built by [Steven Skoczen](http://stevenskoczen.com) at [BuddyUp](http://buddyup.org).  If you're in school, check us out!
 
+> NOTE:  Polytester is being built via [Readme Driven Development](http://tom.preston-werner.com/2010/08/23/readme-driven-development.html), so as of January 22, 2015, not everything is done yet.
+> 
+> But I work fast.  Expect everything here to be supported soon.
 
 # Installation
 
@@ -39,16 +37,16 @@ pip install polytester
     ```
     $ polytester
     Detecting...
-      ✓ api detected as django tests.
-      ✓ js detected as jasmine tests.
-      ✓ e2e detected as karma tests.
+      ✔ api detected as django tests.
+      ✔ js detected as jasmine tests.
+      ✔ e2e detected as karma tests.
 
     Running tests...
-      ✓ api passed.
-      ✓ js passed.
-      ✓ e2e passed.
+      ✔ api - 35 tests passed.
+      ✔ js - 23 tests passed.
+      ✔ e2e - 17 tests passed.
 
-    ✓ All tests passed.
+    ✔ All tests passed.
     ```
 
     Note that the status code returned is correct, so you can just dump this on your CI service, and be done.
@@ -88,7 +86,9 @@ There are a variety of options to make development simple.
 
 # Advanced usage
 
-If you want to get more out of polytester, there's more under the surface, including aggregation, pass/fail counts, continuous reload and more.  To get to it, add some more detail to your tests.yml file.
+If you want to get more out of polytester, there's more under the surface, including pass/fail counts, support for custom frameworks, autoreload and more.
+
+Here's all the goodness.
 
 
 ## Specifying test frameworks
@@ -109,12 +109,12 @@ Now, when you run, you get this output:
 ```bash
 $ polytester
 Detecting...
-  ✓ python specified as nose tests.
+  ✔ python specified as nose tests.
 
 Running tests...
-  ✓ python passed.
+  ✔ python passed.
 
-✓ All tests passed.
+✔ All tests passed.
 ```
 
 Here's the full list of built-in parsers:
@@ -163,12 +163,12 @@ Just write your own output parser class, stick it somewhere on your python path,
 
     my_parsers.py
     ```python
-    from polytester.parsers import DefaultOutputParser
+    from polytester.parsers import DefaultParser
 
-    class Pep8Parser(DefaultOutputParser):
+    class Pep8Parser(DefaultParser):
 
         def tests_passed(self, result):
-            # Required, the code below is the default in DefaultOutputParser
+            # Required, the code below is the default in DefaultParser
             return result.retcode == 0
 
         def num_failed(self, result):
@@ -183,7 +183,7 @@ Just write your own output parser class, stick it somewhere on your python path,
             # Optional.
             return re.match("<?foo_int:\d> found", result.output)
 
-        def detect_regex(self):
+        def command_matches(self):
             # Optional, used for trying to auto detect the test framework.
             # Since this is totally custom, we just return false
             return False
@@ -210,10 +210,55 @@ Just write your own output parser class, stick it somewhere on your python path,
     ```bash
     $ polytester
     Detecting...
-      ✓ pep8 specified as pep8 tests.
+      ✔ pep8 specified as pep8 tests.
 
     Running tests...
-      ✓ pep8 passed.
+      ✔ pep8 passed.
 
-    ✓ All tests passed.
+    ✔ All tests passed.
     ```
+
+# When things go wrong.
+
+When tests fail, polytester just falls back to the helpful output your test frameworks already give you:
+
+```
+$ polytester
+Detecting...
+  ✔ api detected as django tests.
+  ✔ js detected as jasmine tests.
+  ✔ e2e detected as karma tests.
+
+Running tests...
+  ✘ api - 1 of 35 tests failed.
+
+    ======================================================================
+    FAIL: test_addition (events.tests.SampleTest)
+    ----------------------------------------------------------------------
+    Traceback (most recent call last):
+      File "/Users/me/project/events/tests.py", line 6, in test_addition
+        self.assertEquals(1+1, 3)
+    AssertionError: 2 != 3
+
+    ----------------------------------------------------------------------
+    Ran 35 tests in 1.642s
+
+    FAILED (failures=1)
+
+  ✔ js - 23 tests passed.
+  ✔ e2e - 17 tests passed.
+
+✔ All tests passed.
+```
+
+
+# Into the Future
+
+As with all the open-source projects I run, I leave the future pretty open to what the people who use the project request, and the PRs that are sent. 
+
+But here's a short list of things that are rolling around in my head as future features:
+
+- Better parsing of test outputs, to just list failed test file names and line numbers
+- xUnit output
+- The ability for parsers to do better parallelization introspection (based on globs, etc)
+- Whatever great stuff you bring to the table!
