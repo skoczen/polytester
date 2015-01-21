@@ -1,3 +1,6 @@
+![Polytester Logo](https://cloud.githubusercontent.com/assets/200635/5837495/4b37ce74-a1b2-11e4-8eb7-0b7e8b05e52b.png)
+
+
 Polytester is a simple multi-language test runner.
 
 It makes it easy to run tests in your polygot projects.  Run python, javascript, ruby, java, and more side by side. Easily.
