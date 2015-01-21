@@ -4,14 +4,13 @@ It makes it easy to run tests in your polygot projects.  Run python, javascript,
 
 Polytester ships with lots of batteries included, including support for django, jasmine, and karma.
 
-Polytester is easily extensible to any testing framework that runs in the shell (that'd be pretty much everything), and pull requests to add new languages and frameworks are welcome!
+It's also easily extensible to any testing framework that runs in the shell (that'd be pretty much everything), and pull requests to add new languages and frameworks are welcome!
 
 
-```
-NOTE:  Polytester is being built via [Readme Driven Development](http://tom.preston-werner.com/2010/08/23/readme-driven-development.html), so as of January 22, 2015, not everything is done yet.
 
-But I work fast.  Expect everything here to be supported soon.
-```
+> NOTE:  Polytester is being built via [Readme Driven Development](http://tom.preston-werner.com/2010/08/23/readme-driven-development.html), so as of January 22, 2015, not everything is done yet.
+> 
+> But I work fast.  Expect everything here to be supported soon.
 
 
 # Installation
@@ -37,9 +36,9 @@ e2e:
 ```
 $ polytester
 Detecting...
-  ✓ api detected as Django tests.
-  ✓ js detected as Jasmine tests.
-  ✓ e2e detected as Karma tests.
+  ✓ api detected as django tests.
+  ✓ js detected as jasmine tests.
+  ✓ e2e detected as karma tests.
 
 Running tests...
   ✓ api passed.
@@ -47,7 +46,6 @@ Running tests...
   ✓ e2e passed.
 
 ✓ All tests passed.
-
 ```
 
 Note that the status code is correct, so you can just dump this on your CI service, and be done.
