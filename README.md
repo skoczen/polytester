@@ -80,7 +80,7 @@ There are a variety of options to make development simple.
 - `--failfast` - stops running tests when the first fail is found.
 - `--verbose` - dumps all output to the shell.  To prevent collisions, when run in this mode, tests are run in serial, instead of the normal parallel execution.
 - `--wip` - if supported by the test runner, runs test flagged as "work in progress"
-- `--ci` - (requires watch_glob) watches a file glob, and immediately runs tests on file change. Any running tests are killed.
+- `--ci` - For all tests that specify a `watch_glob` the files, and immediately runs the matching tests on any file change. Any running tests are killed.
 - `--autoreload` - alias for `--ci`
 - `--parallel n m` - In parallel build test environments, only runs test chunk `n` of `m`
 - `--config foo.yml` - specifies a different location for the config file.  Default is tests.yml
@@ -140,8 +140,7 @@ Having your tests auto-run when files change is super-handy.  With polytester, i
 ```yml
 python: 
     command: nosetests
-    type: nose
-    watch_glob: **/*.py
+    watch_glob: "**/*.py"
 ```
 
 2. Run with `--autoreload`
@@ -150,7 +149,9 @@ python:
 polytester --autoreload
 ```
 
-Any time you change a file that matches the glob, polytester will immediately run those the matching test suite.  Any running tests will be immediately killed.
+Any time you change a file that matches the glob, polytester will immediately run the matching test suite.  Any running tests for that suite will be immediately killed.
+
+**Note:** running with `--autoreload` will only run the tests that have specified `watch_glob`s.  Which makes sense once you think about it, but might suprise you at first glance.
 
 
 ### Custom parsers
@@ -159,16 +160,17 @@ If you've got a custom testing framework or one that's not bundled yet, no probl
 
 Just write your own output parser class, stick it somewhere on your python path, put in in your `tests.yml` file, and you're good to go.  Here's an example for pep8.
 
-**Please note:** if you're writing for a common framework, please submit a pull request!
+**Please note:** if you're writing for a common framework/use case, please submit a pull request!
 
 
-1. Write your own parser
+1. Write your own parser.
 
     my_parsers.py
     ```python
     from polytester.parsers import DefaultParser
 
     class Pep8Parser(DefaultParser):
+        name = "custom pep8"
 
         def tests_passed(self, result):
             # Required, the code below is the default in DefaultParser
@@ -186,7 +188,7 @@ Just write your own output parser class, stick it somewhere on your python path,
             # Optional.
             return re.match("<?foo_int:\d> found", result.output)
 
-        def command_matches(self):
+        def command_matches(self, command_string):
             # Optional, used for trying to auto detect the test framework.
             # Since this is totally custom, we just return false
             return False
@@ -200,7 +202,7 @@ Just write your own output parser class, stick it somewhere on your python path,
     - `results.passed` - A boolean indicating if the tests have passed. `None` until a definitive answer is known.
 
 
-2. Specify it in your test.yml file
+2. Specify it in your test.yml file.
 
     ```yml
     pep8: 
@@ -213,7 +215,7 @@ Just write your own output parser class, stick it somewhere on your python path,
     ```bash
     $ polytester
     Detecting...
-      ✔ pep8 specified as pep8 tests.
+      ✔ pep8 specified as custom pep8 tests.
 
     Running tests...
       ✔ pep8 passed.
@@ -251,7 +253,7 @@ Running tests...
   ✔ js - 23 tests passed.
   ✔ e2e - 17 tests passed.
 
-✔ All tests passed.
+✘ Tests failed
 ```
 
 

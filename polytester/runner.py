@@ -203,9 +203,9 @@ class PolytesterRunner(object):
 
         if all_passed:
             puts()
-            puts(colored.green("All tests passed."))
+            puts(colored.green("✔ All tests passed."))
             puts()
         else:
-            self._fail("Tests failed.")
+            self._fail("✘ Tests failed.")
             puts()
             sys.exit(1)
