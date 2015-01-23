@@ -14,6 +14,7 @@ Polytester was built by [Steven Skoczen](http://stevenskoczen.com) at [BuddyUp](
 > NOTE:  Polytester is being built via [Readme Driven Development](http://tom.preston-werner.com/2010/08/23/readme-driven-development.html), so as of January 22, 2015, not everything is done yet.
 > 
 > But I work fast.  Expect everything here to be supported soon.
+> Jan 23: Everything but --ci works.  Expect that Monday.
 
 # Installation
 
@@ -56,9 +57,11 @@ pip install polytester
 
 That's it.
 
-# Supported Parsers
+# Supported Frameworks
 
-As of v0.1, polytester supports the following parsers.  More are welcome via PR, and as you'll see below, writing them is easy!
+Any test framework that returns standard error codes will work out of the box.  That's pretty much everything.
+
+In addition, polytester progressively upgrades to extra-nice output for framworks it has parsers for. As of v0.2, the following parsers are built-in, and it's simple to write your own.  More are very much welcome via PR, and as you'll see below, writing them is easy!
 
 - [Python Nose](https://nose.readthedocs.org/en/latest/)
 - [Django](https://www.djangoproject.com/)
@@ -80,11 +83,10 @@ There are a variety of options to make development simple.
 - `--failfast` - stops running tests when the first fail is found.
 - `--verbose` - dumps all output to the shell.  To prevent collisions, when run in this mode, tests are run in serial, instead of the normal parallel execution.
 - `--wip` - runs all suites that specify a `wip_command`, to runs tests flagged as "work in progress"
-- `--ci` - Watches all files specified in `watch_glob`s, and immediately runs the relevant suite on file changes. Any running tests are killed.
-- `--autoreload` - alias for `--ci`
+- `--autoreload` / `--ci` - Watches all files specified in `watch_glob`s, and immediately runs the relevant suite on file changes. Any running tests are killed.
 - `--parallel n m` - In parallel build test environments, only runs test chunk `n` of `m`
 - `--config foo.yml` - specifies a different location for the config file.  Default is tests.yml
-- `--[test_name]` - just runs the test(s) specified. I.e `--e2e`.  Comma-separating is fine.
+- `foo` / `foo,bar` - just runs the test(s) specified. I.e `--e2e`.  Comma-separating is fine.
 
 
 # Advanced usage
@@ -93,43 +95,6 @@ If you want to get more out of polytester, there's more under the surface, inclu
 
 Here's all the goodness.
 
-
-## Specifying test frameworks
-
-If you're using the default test command for any supported frameworks, polytester just detects the right one, and you're on your way.  However, if you're using a custom runner, or something a bit special, you can easily just specify which parser polytester should use.
-
-Let's say for reasons too complex to explain, I have a custom wrapper around my nose script. No problem.  In my `tests.yml`, I just specify it.
-
-
-```yml
-python: 
-    command: my_custom_nose_script.sh
-    parser: polytester.NoseParser
-```
-
-Now, when you run, you get this output:
-
-```bash
-$ polytester
-Detecting...
-  ✔ python specified as nose tests.
-
-Running tests...
-  ✔ python passed.
-
-✔ All tests passed.
-```
-
-Here's the full list of built-in parsers:
-
-- `DefaultParser` (Just listens to exit codes, no support for number of tests.)
-- `NoseParser`
-- `DjangoParser`
-- `JasmineParser`
-- `KarmaParser`
-- `SaladParser`
-
-If you need a parser not in this list, you can make it simply. See [Custom parsers](#Custom-parsers) below.
 
 ### Autoreload
 
@@ -185,6 +150,44 @@ python:
     watch_glob: "**/*.py"
     parser: my_parsers.Pep8Parser
 ```
+
+
+## Specifying test frameworks
+
+If you're using the default test command for any supported frameworks, polytester just detects the right one, and you're on your way.  However, if you're using a custom runner, or something a bit special, you can easily just specify which parser polytester should use.
+
+Let's say for reasons too complex to explain, I have a custom wrapper around my nose script. No problem.  In my `tests.yml`, I just specify it.
+
+
+```yml
+python: 
+    command: my_custom_nose_script.sh
+    parser: polytester.NoseParser
+```
+
+Now, when you run, you get this output:
+
+```bash
+$ polytester
+Detecting...
+  ✔ python specified as nose tests.
+
+Running tests...
+  ✔ python passed.
+
+✔ All tests passed.
+```
+
+Here's the full list of built-in parsers:
+
+- `DefaultParser` (Just listens to exit codes, no support for number of tests.)
+- `NoseParser`
+- `DjangoParser`
+- `JasmineParser`
+- `KarmaParser`
+- `SaladParser`
+
+If you need a parser not in this list, you can make it simply. See [Custom parsers](#Custom-parsers) below.
 
 
 ### Custom parsers
@@ -296,7 +299,7 @@ As with all the open-source projects I run, I leave the future pretty open to wh
 
 But here's a short list of things that are rolling around in my head as future features:
 
-- Better parsing of test outputs, to just list failed test file names and line numbers
+- Better parsing of test outputs, to just list failed test file names and line numbers or other fancy niceties.
 - xUnit output
 - The ability for parsers to do better parallelization introspection (based on globs, etc)
 - Whatever great stuff you bring to the table!

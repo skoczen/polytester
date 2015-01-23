@@ -1,3 +1,11 @@
+FB: Geek warning: just finished up this new open-source tool at work. If you're a web programmer, you'll want it.  If you're everybody else, just appreciate the pun.
+
+"Wait, what?", you're asking?  You don't just travel all the time?  Nope. I work a regular job, just like you. In Thailand. :)
+
+Everybody, meet polytester.
+
+
+
 One of the things I've enjoyed most at the jobs I've held has been building fantastic internal development tools, and a lot of the time, open sourcing them.  Things like [will]() and [salad](), [django-seo-js](), and [django-ajax-uploader]().  These sorts of projects are great fun, and as it's turned out, really useful to other developers.
 
 I'm really lucky to be able to continue that work at [BuddyUp](http://www.buddyup.org), and today, there's a new one to add: polytester.
