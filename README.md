@@ -79,8 +79,8 @@ There are a variety of options to make development simple.
 
 - `--failfast` - stops running tests when the first fail is found.
 - `--verbose` - dumps all output to the shell.  To prevent collisions, when run in this mode, tests are run in serial, instead of the normal parallel execution.
-- `--wip` - if supported by the test runner, runs test flagged as "work in progress"
-- `--ci` - For all tests that specify a `watch_glob` the files, and immediately runs the matching tests on any file change. Any running tests are killed.
+- `--wip` - runs all suites that specify a `wip_command`, to runs tests flagged as "work in progress"
+- `--ci` - Watches all files specified in `watch_glob`s, and immediately runs the relevant suite on file changes. Any running tests are killed.
 - `--autoreload` - alias for `--ci`
 - `--parallel n m` - In parallel build test environments, only runs test chunk `n` of `m`
 - `--config foo.yml` - specifies a different location for the config file.  Default is tests.yml
@@ -154,11 +154,32 @@ Any time you change a file that matches the glob, polytester will immediately ru
 **Note:** running with `--autoreload` will only run the tests that have specified `watch_glob`s.  Which makes sense once you think about it, but might suprise you at first glance.
 
 
+### WIP (Work in Progress) tests
+
+Being able to tag certain groups of tests becomes a huge develoment time-saver for larger codebases. Polytester makes it simple.   Just specify a `wip_command`, and run with `--wip`.
+
+1. Specify a `wip_command` in your `tests.yml`
+
+```yml
+python: 
+    command: nosetests
+    wip_command: nosetests -a wip
+```
+
+2. Run with `--wip`
+
+```bash
+polytester --wip
+```
+
+That's it!
+
+
 ### Custom parsers
 
-If you've got a custom testing framework or one that's not bundled yet, no problem. 
+Any test framework that returns standard error codes (0 for pass, non-zero for fail) will work out of the box.  That's pretty much everything. However, if you want fancy test number parsing (and someday more), writing a custom parser is easy.
 
-Just write your own output parser class, stick it somewhere on your python path, put in in your `tests.yml` file, and you're good to go.  Here's an example for pep8.
+Just write a output parser class based on `DefaultParser`, stick it somewhere on your python path, put in in your `tests.yml` file, and you're good to go.  Here's an example for pep8.
 
 **Please note:** if you're writing for a common framework/use case, please submit a pull request!
 
