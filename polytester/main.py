@@ -23,7 +23,6 @@ parser.add_argument('test_names', metavar='tests', type=str, nargs='?',
 
 def main():
     args = parser.parse_args()
-    print(args)
     runner = PolytesterRunner(args)
     runner.run()
 
