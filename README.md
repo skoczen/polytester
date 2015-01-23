@@ -304,12 +304,12 @@ But here's a short list of things that are rolling around in my head as future f
 
 # Contributing
 
-## PRs Welcome!
+### PRs Welcome!
 If you want to add support for a language or framework, those PRs are *always* welcome.  
 
 If you have a bigger idea, just pop open an issue, and we'll talk it through, so we don't cross wires when the PR comes!
 
-## Culture
+### Culture
 
 Anyone is welcome to contribute to polytester, regardless of skill level or experience. To make polytester the best it can be, we have one big, overriding cultural principle:
 
