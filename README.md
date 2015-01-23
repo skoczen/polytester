@@ -7,7 +7,7 @@ It makes it easy to run tests in your polygot projects.  Run python, javascript,
 
 Polytester works with any testing framework that runs in the shell (yo, that's pretty much everything on earth), and ships with extra-special support for lots of common frameworks including django, jasmine, karma, and more.
 
-Polytester was built by [Steven Skoczen](http://stevenskoczen.com) at [BuddyUp](http://buddyup.org).  If you're in school could use a buddy, check us out!
+Polytester was built by [Steven Skoczen](http://stevenskoczen.com) at [BuddyUp](http://buddyup.org).  If you're in school, and could use a study buddy, check us out!
 
 > NOTE:  Polytester is being built via [Readme Driven Development](http://tom.preston-werner.com/2010/08/23/readme-driven-development.html), so as of January 23, 2015 (two days in), `--ci` and `--failfast` have yet to be implemented.
 > 
@@ -58,7 +58,7 @@ That's it. There is no step 3.
 
 Any test framework that returns standard error codes will work out of the box.  That's pretty much everything.
 
-In addition, polytester progressively upgrades to extra-nice output for the frameworks it has parsers for. As of v0.2, the following parsers are built-in, and it's simple to write your own.  More are very much welcome via PR, and as you [can see below](#Writing-A-Custom-Parser), writing them is easy!
+In addition, polytester progressively upgrades to extra-nice output for the frameworks it has parsers for. As of v0.2, the following parsers are built-in, and it's simple to write your own.  More are very much welcome via PR, and as you [can see below](#writing-a-custom-parser), writing them is easy!
 
 - [Django](https://www.djangoproject.com/)
 - [Jasmine](http://jasmine.github.io/)
@@ -83,7 +83,7 @@ There are a variety of options to make development simple.
 - `--wip` runs tests flagged as "work in progress" by running the `wip_command` for all suites that specify it.
 - `--autoreload` or `--ci` watches all files specified in a `watch_glob`, and immediately runs the relevant suite on file changes. Any running tests are killed.
 - `--parallel n m` only runs test chunk `n` of `m`, for parallel build test environments. 
-- `--config foo.yml` specifies a different location for the config file.  Default is tests.yml
+- `--config foo.yml` specifies a different location for the config file.  Default is `tests.yml`
 
 
 # Advanced usage
@@ -99,40 +99,40 @@ Having your tests auto-run when files change is super-handy.  With polytester, i
 
 1. Specify a `watch_glob` in your `tests.yml`
 
-```yml
-python: 
-    command: nosetests
-    watch_glob: "**/*.py"
-```
+    ```yml
+    python: 
+        command: nosetests
+        watch_glob: "**/*.py"
+    ```
 
 2. Run with `--autoreload`
 
-```bash
-polytester --autoreload
-```
+    ```bash
+    polytester --autoreload
+    ```
 
 Any time you change a file that matches the glob, polytester will immediately run the matching test suite.  Any running tests for that suite will be immediately killed.
 
-**Note:** running with `--autoreload` will only run the tests that have specified `watch_glob`s.  Which makes sense once you think about it, but might suprise you at first glance.
+**Note:** running with `--autoreload` will only run the tests that have a `watch_glob` in their config.  Which makes sense once you think about it, but might suprise you at first glance.
 
 
 ## WIP (Work in Progress) tests
 
-Being able to tag certain groups of tests becomes a huge develoment time-saver for larger codebases. Polytester makes it simple.   Just specify a `wip_command`, and run with `--wip`.
+Being able to tag and run certain groups of tests becomes a huge develoment time-saver for larger codebases. Polytester makes it simple.   Just specify a `wip_command`, and run with `--wip`.
 
 1. Specify a `wip_command` in your `tests.yml`
 
-```yml
-python: 
-    command: nosetests
-    wip_command: nosetests -a wip
-```
+    ```yml
+    python: 
+        command: nosetests
+        wip_command: nosetests -a wip
+    ```
 
 2. Run with `--wip`
 
-```bash
-polytester --wip
-```
+    ```bash
+    polytester --wip
+    ```
 
 That's it!
 
@@ -141,7 +141,7 @@ That's it!
 
 If you're using the default test command for any supported frameworks, polytester just detects the right one, and you're on your way.  However, if you're using a custom runner, or something a bit special, you can easily just specify which parser polytester should use.
 
-Let's say for reasons too complex to explain, I have a custom wrapper around my nose script. No problem.  In my `tests.yml`, I just specify it.
+Let's say for reasons too complex to explain, I have a custom wrapper around my nose script. No problem.  In my `tests.yml`, I just tell polytester to expect nose output.
 
 
 ```yml
@@ -172,7 +172,7 @@ Here's the full list of built-in parsers:
 - `KarmaParser`
 - `SaladParser`
 
-If you need a parser not in this list, you can make it simply. See [Custom parsers](#Writing-A-Custom-Parser) below.
+If you need a parser not in this list, you can make it simply. See [Custom parsers](#writing-a-custom-parser) below.
 
 
 
@@ -192,7 +192,7 @@ python:
 
 Any test framework that returns standard error codes (0 for pass, non-zero for fail) will Just Work out of the box. However, if you want fancy test counts (and someday more), writing a custom parser is easy.
 
-Just write a class based on `DefaultParser`, stick it somewhere on your python path, put in in your `tests.yml` file, and you're good to go.  Here's an example for pep8.
+Just write a class that inherits `DefaultParser`, stick it somewhere on your python path, put in in your `tests.yml` file, and you're good to go.  Here's an example for pep8.
 
 **Please note:** if you're writing for a common framework/use case, please submit a pull request!
 
@@ -304,11 +304,12 @@ But here's a short list of things that are rolling around in my head as future f
 
 ## Contributing
 
+### PRs Welcome!
 If you want to add support for a language or framework, those PRs are *always* welcome.  
 
 If you have a bigger idea, just pop open an issue, and we'll talk it through, so we don't cross wires when the PR comes!
 
-## Culture
+### Culture
 
 Anyone is welcome to contribute to polytester, regardless of skill level or experience. To make polytester the best it can be, we have one big, overriding cultural principle:
 
