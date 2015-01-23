@@ -9,10 +9,9 @@ Polytester works with any testing framework that runs in the shell (yo, that's p
 
 Polytester was built by [Steven Skoczen](http://stevenskoczen.com) at [BuddyUp](http://buddyup.org).  If you're in school could use a buddy, check us out!
 
-> NOTE:  Polytester is being built via [Readme Driven Development](http://tom.preston-werner.com/2010/08/23/readme-driven-development.html), so as of January 22, 2015, not everything is done yet.
+> NOTE:  Polytester is being built via [Readme Driven Development](http://tom.preston-werner.com/2010/08/23/readme-driven-development.html), so as of January 23, 2015 (two days in), `--ci` and `--failfast` have yet to be implemented.
 > 
-> But I work fast.  Expect everything here to be supported soon.
-> Jan 23: Everything but --ci works.  Expect that Monday.
+> But I work fast.  Expect everything here to be supported early next week.
 
 # Installation
 
