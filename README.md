@@ -5,7 +5,7 @@ Polytester is a simple, groovy multi-language test runner.
 
 It makes it easy to run tests in your polygot projects.  Run python, javascript, ruby, java, and more side by side. Easily.
 
-Polytester works with any testing framework that runs in the shell (yo, that's pretty much everything on earth), and ships with extra-special support for lots of common frameworks including django, jasmine, karma, and more.
+Polytester works with any testing framework that runs in the shell (yo, that's pretty much everything on the planet), and ships with extra-smooth integration for lots of common frameworks including django, jasmine, karma, and more.
 
 Polytester was built by [Steven Skoczen](http://stevenskoczen.com) at [BuddyUp](http://buddyup.org).  If you're in school, and could use a study buddy, check us out!
 
