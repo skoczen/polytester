@@ -5,11 +5,9 @@ Polytester is a simple multi-language test runner.
 
 It makes it easy to run tests in your polygot projects.  Run python, javascript, ruby, java, and more side by side. Easily.
 
-Polytester ships with lots of batteries included, including support for django, jasmine, and karma.
+Polytester works with any testing framework that runs in the shell (yep, that's pretty much everything on earth), and ships with extra-special support for lots of frameworks including django, jasmine, and karma.
 
-It's also easily extensible to any testing framework that runs in the shell (that'd be pretty much everything), and pull requests to add new languages and frameworks are welcome!
-
-Polytester was built by [Steven Skoczen](http://stevenskoczen.com) at [BuddyUp](http://buddyup.org).  If you're in school, check us out!
+Polytester was built by [Steven Skoczen](http://stevenskoczen.com) at [BuddyUp](http://buddyup.org).  If you're in school could use a buddy, check us out!
 
 > NOTE:  Polytester is being built via [Readme Driven Development](http://tom.preston-werner.com/2010/08/23/readme-driven-development.html), so as of January 22, 2015, not everything is done yet.
 > 
@@ -80,18 +78,18 @@ Polytester will respond to `pt` or `polytester`.  Both do the exact same thing.
 
 There are a variety of options to make development simple.
 
-- `--failfast` - stops running tests when the first fail is found.
-- `--verbose` - dumps all output to the shell.  To prevent collisions, when run in this mode, tests are run in serial, instead of the normal parallel execution.
-- `--wip` - runs all suites that specify a `wip_command`, to runs tests flagged as "work in progress"
-- `--autoreload` / `--ci` - Watches all files specified in `watch_glob`s, and immediately runs the relevant suite on file changes. Any running tests are killed.
-- `--parallel n m` - In parallel build test environments, only runs test chunk `n` of `m`
-- `--config foo.yml` - specifies a different location for the config file.  Default is tests.yml
-- `foo` / `foo,bar` - just runs the test(s) specified. I.e `--e2e`.  Comma-separating is fine.
+- `--failfast` stops running tests when the first fail is found.
+- `--verbose` dumps all output to the shell.  To prevent collisions, when run in this mode, tests are run in serial, instead of the normal parallel execution.
+- `--wip` runs all suites that specify a `wip_command`, to runs tests flagged as "work in progress"
+- `--autoreload` / `--ci` watches all files specified in `watch_glob`s, and immediately runs the relevant suite on file changes. Any running tests are killed.
+- `--parallel n m` only runs test chunk `n` of `m`, for parallel build test environments. 
+- `--config foo.yml` specifies a different location for the config file.  Default is tests.yml
+- `foo` / `foo,bar` just runs the test(s) specified. Comma-separating is fine.
 
 
 # Advanced usage
 
-If you want to get more out of polytester, there's more under the surface, including pass/fail counts, support for custom frameworks, autoreload and more.
+If you want to get more out of polytester, there's more under the surface, including wip, autoreload, pass/fail counts, custom frameworks, and more.
 
 Here's all the goodness.
 
@@ -192,9 +190,9 @@ If you need a parser not in this list, you can make it simply. See [Custom parse
 
 ### Custom parsers
 
-Any test framework that returns standard error codes (0 for pass, non-zero for fail) will work out of the box.  That's pretty much everything. However, if you want fancy test number parsing (and someday more), writing a custom parser is easy.
+Any test framework that returns standard error codes (0 for pass, non-zero for fail) will Just Work out of the box. However, if you want fancy test number parsing (and someday more), writing a custom parser is easy.
 
-Just write a output parser class based on `DefaultParser`, stick it somewhere on your python path, put in in your `tests.yml` file, and you're good to go.  Here's an example for pep8.
+Just write a class based on `DefaultParser`, stick it somewhere on your python path, put in in your `tests.yml` file, and you're good to go.  Here's an example for pep8.
 
 **Please note:** if you're writing for a common framework/use case, please submit a pull request!
 
@@ -206,7 +204,7 @@ Just write a output parser class based on `DefaultParser`, stick it somewhere on
     from polytester.parsers import DefaultParser
 
     class Pep8Parser(DefaultParser):
-        name = "custom pep8"
+        name = "my custom pep8"
 
         def tests_passed(self, result):
             # Required, the code below is the default in DefaultParser
@@ -251,7 +249,7 @@ Just write a output parser class based on `DefaultParser`, stick it somewhere on
     ```bash
     $ polytester
     Detecting...
-      ✔ pep8 specified as custom pep8 tests.
+      ✔ pep8 specified as my custom pep8 tests.
 
     Running tests...
       ✔ pep8 passed.
