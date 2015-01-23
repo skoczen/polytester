@@ -175,6 +175,18 @@ polytester --wip
 That's it!
 
 
+### All options
+Here's a yml file, with everything, just for easy reference.:
+
+```yml
+python: 
+    command: nosetests
+    wip_command: nosetests -a wip
+    watch_glob: "**/*.py"
+    parser: my_parsers.Pep8Parser
+```
+
+
 ### Custom parsers
 
 Any test framework that returns standard error codes (0 for pass, non-zero for fail) will work out of the box.  That's pretty much everything. However, if you want fancy test number parsing (and someday more), writing a custom parser is easy.
