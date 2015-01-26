@@ -5,11 +5,15 @@ from clint.textui import colored
 from clint.textui import puts, indent, columns
 import fcntl
 import importlib
+import logging
 import os
 import time
+from threading import Thread
 import traceback
 import subprocess
 import sys
+from watchdog.observers import Observer
+from watchdog.events import PatternMatchingEventHandler
 from yaml import load
 from yaml.scanner import ScannerError
 
@@ -18,6 +22,40 @@ from .util import Bunch
 
 BUNDLED_PARSERS = [BaseParser, DefaultParser, DjangoParser]
 DEFAULT_PARSER = DefaultParser
+
+
+class AutoreloadHandler(PatternMatchingEventHandler):
+    patterns = []
+
+    def __init__(self, test_name=None, runner=None, patterns=None, *args, **kwargs):
+        if not test_name or not runner:
+            raise AttributeError("Missing test_name or runner argument")
+
+        self.test_name = test_name
+        self.runner = runner
+        if patterns:
+            self.patterns = patterns
+        super(AutoreloadHandler, self).__init__(*args, **kwargs)
+
+    def process(self, event):
+        """
+        event.event_type 
+            'modified' | 'created' | 'moved' | 'deleted'
+        event.is_directory
+            True | False
+        event.src_path
+            path/to/observed/file
+        """
+        self.runner.handle_file_change(self.test_name, event)
+
+    def on_modified(self, event):
+        self.process(event)
+
+    def on_created(self, event):
+        self.process(event)
+
+    def on_deleted(self, event):
+        self.process(event)
 
 
 class PolytesterRunner(object):
@@ -39,6 +77,7 @@ class PolytesterRunner(object):
         # arg_options is expected to be an argparse namespace.
 
         # Parse out arg_options.
+        self.autoreload = arg_options.autoreload
         self.verbose = arg_options.verbose
         config_file = arg_options.config_file
         wip = arg_options.wip
@@ -53,7 +92,15 @@ class PolytesterRunner(object):
         else:
             all_tests = True
 
+        # Set up variables.
+        self.processes = {}
+        self.results = {}
+        self.threads = {}
+
         # Detect and configure parsers
+        if self.autoreload:
+            os.system('clear')
+
         puts("Detecting...")
         with indent(2):
             self.tests = []
@@ -84,6 +131,11 @@ class PolytesterRunner(object):
                         run_suite = True
                     else:
                         skip_message = ""
+                elif self.autoreload:
+                    if "watch_glob" in options:
+                        run_suite = True
+                    else:
+                        skip_message = "no watch_glob"
                 elif all_tests or name in tests_to_run:
                     if not wip or "wip_command" in options:
                         run_suite = True
@@ -189,56 +241,85 @@ class PolytesterRunner(object):
     def register_parser(self, parser_class):
         self.parsers.append(parser_class())
 
+    def handle_file_change(self, test_name, event):
+        os.system('clear')
+        puts("Change detected in %s suite. Reloading..." % test_name)
+        for name, p in self.processes.items():
+            p.kill()
+        self.run()
+
+    def watch_thread(self, test):
+        event_handler = AutoreloadHandler(runner=self, test_name=test.short_name, patterns=[test.watch_glob,])
+        observer = Observer()
+        observer.schedule(event_handler, ".", recursive=True)
+        observer.start()
+        try:
+            while True:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            observer.stop()
+            sys.exit(1)
+        observer.join()
+
     def run(self):
         puts()
         puts("Running tests...")
-        results = {}
-        processes = {}
+        self.results = {}
+        self.processes = {}
+
+        if self.autoreload:
+            logging.basicConfig(level=logging.INFO,
+                                format='%(asctime)s - %(message)s',
+                                datefmt='%Y-%m-%d %H:%M:%S')
+            # TODO: handle multiple CIs
+            for t in self.tests:
+                self.threads[t.short_name] = Thread(target=self.watch_thread, args=(t,))
+                self.threads[t.short_name].start()
 
         if self.verbose:
             for t in self.tests:
-                processes[t.short_name] = subprocess.Popen(t.command, shell=True)
-                processes[t.short_name].communicate()
-                results[t.short_name] = Bunch(
+                self.processes[t.short_name] = subprocess.Popen(t.command, shell=True)
+                self.processes[t.short_name].communicate()
+                self.results[t.short_name] = Bunch(
                     output=u"",
                     retcode=None,
                     parser=t.parser,
                     test_obj=t,
                     passed=None,
                 )
-                results[t.short_name].retcode = processes[t.short_name].returncode
+                self.results[t.short_name].retcode = self.processes[t.short_name].returncode
         else:
             for t in self.tests:
-                processes[t.short_name] = subprocess.Popen(t.command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                results[t.short_name] = Bunch(
+                self.processes[t.short_name] = subprocess.Popen(t.command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                self.results[t.short_name] = Bunch(
                     output=u"",
                     retcode=None,
                     parser=t.parser,
                     test_obj=t,
                     passed=None,
                 )
-            while len(processes.items()) > 0:
-                for name, p in list(processes.items()):
+            while len(self.processes.items()) > 0:
+                for name, p in list(self.processes.items()):
                     while p.poll() is None:
                         line = self.non_blocking_read(p.stdout)
                         if line:
-                            results[name].output += "\n%s" % line.decode("utf-8")
+                            self.results[name].output += "\n%s" % line.decode("utf-8")
                         time.sleep(0.5)
 
                     if p.returncode is not None:
                         out, err = p.communicate()
                         if out:
-                            results[name].output += "\n%s" % out.decode("utf-8")
+                            self.results[name].output += "\n%s" % out.decode("utf-8")
                         if err:
-                            results[name].output += "\n%s" % err.decode("utf-8")
-                        results[name].retcode = p.returncode
-                        del processes[name]
+                            self.results[name].output += "\n%s" % err.decode("utf-8")
+                        self.results[name].retcode = p.returncode
+                        del self.processes[name]
 
         all_passed = True
         with indent(2):
             for t in self.tests:
                 name = t.short_name
-                r = results[name]
+                r = self.results[name]
 
                 r.passed = r.parser.tests_passed(r)
                 pass_string = ""

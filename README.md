@@ -58,7 +58,7 @@ That's it. There is no step 3.
 
 Any test framework that returns standard error codes will work out of the box.  That's pretty much everything.
 
-In addition, polytester progressively upgrades to extra-nice output for the frameworks it has parsers for. As of v0.2, the following parsers are built-in, and it's simple to write your own.  More are very much welcome via PR, and as you [can see below](#writing-a-custom-parser), writing them is easy!
+In addition, polytester progressively upgrades to extra-nice output for the frameworks it has parsers for. As of v1.0, the following parsers are built-in, and it's simple to write your own.  More are very much welcome via PR, and as you [can see below](#writing-a-custom-parser), writing them is easy!
 
 - [Django](https://www.djangoproject.com/)
 - [Jasmine](http://jasmine.github.io/)
