@@ -49,7 +49,9 @@ pip install polytester
 
 That's it. There is no step 3.
 
-If you like animated gifs better, here's polytester, installed, configured, and running in less than 30 seconds:
+# Because everyone loves animated gifs
+
+Here's the above - polytester installed, configured, and running in less than 30 seconds:
 
 ![install](https://cloud.githubusercontent.com/assets/200635/5915016/3d92455e-a632-11e4-9ff4-d3553b6774c0.gif)
 
@@ -119,7 +121,8 @@ Notes:
 - To specify multiple file types, you can use standard unix globs, i.e. `*.html;*.js;*.css`.
 - Running with `--autoreload` will only run the tests that have a `watch_glob` in their config.  Which makes sense once you think about it, but might suprise you at first glance.
 
-CI in action:
+Autoreload in action:
+
 ![ci-small-2](https://cloud.githubusercontent.com/assets/200635/5915017/3dce3852-a632-11e4-8c4e-ade981d98a71.gif)
 
 ## WIP (Work in Progress) tests
