@@ -155,7 +155,8 @@ For CircleCI, just set your `circle.yml` to:
 ```yml
 test:
   override:
-    - polytester --parallel $CIRCLE_NODE_INDEX $CIRCLE_NODE_TOTAL
+    - polytester --parallel $CIRCLE_NODE_INDEX $CIRCLE_NODE_TOTAL:
+        parallel: true
 ```
 
 And you're all set.  Your test suites will split out automatically, according to the number of build containers you have.
@@ -318,12 +319,40 @@ Running tests...
 ```
 
 
+# Releases
+
+#### 1.0.1 - Jan 27, 2015 
+
+- Bugfix on --parallel.
+
+#### 1.0 - Jan 27, 2015 - "Rick James"
+
+- all RDD features in, we're using polytester in production.
+
+#### 0.1.3 - Jan 22, 2015
+
+- Everything but `--ci`, `--failfast`, and a couple parsers is in.
+
+#### 0.1.2 - Jan 21, 2015
+
+- works on python 3. First stable release!
+
+#### 0.1.1 - Jan 21, 2015
+
+- fixes inclusion of wsgiref, which breaks python 3 due to a print.
+
+#### 0.1 - Jan 21, 2015
+
+- Initial release.  Basic functionality works, only Django parser is in. Very much RDD.
+
+
 # Into the Future
 
 As with all the open-source projects I run, I leave the future pretty open to what the people who use the project request, and the PRs that are sent.
 
 But here's a short list of things that are rolling around in my head as future features:
 
+- Test coverage.  Yes, I appreciate the irony.
 - Better parsing of test outputs, to just list failed test file names and line numbers or other fancy niceties.
 - xUnit output
 - `--failfast`, for super-quick iteration.

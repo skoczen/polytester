@@ -100,7 +100,10 @@ class PolytesterRunner(object):
         if run_parallel:
             parallel_n = int(arg_options.parallel[0])
             parallel_m = int(arg_options.parallel[1])
-            parallel_modulo = parallel_n % parallel_m
+            if parallel_m < 1:
+                run_parallel = False
+            else:
+                parallel_modulo = parallel_n % parallel_m
         if arg_options.test_names:
             tests_to_run = arg_options.test_names.split(",")
             all_tests = False
@@ -142,7 +145,7 @@ class PolytesterRunner(object):
                 current_num += 1
                 skip_message = ""
                 if run_parallel:
-                    if parallel_modulo == current_num % num_total:
+                    if parallel_modulo == current_num % parallel_m:
                         run_suite = True
                     else:
                         skip_message = ""
