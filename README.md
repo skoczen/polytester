@@ -51,7 +51,7 @@ That's it. There is no step 3.
 
 If you like animated gifs better, here's polytester, installed, configured, and running in less than 30 seconds:
 
-![Install and Config](https://cloud.githubusercontent.com/assets/200635/5914849/4fcfa2fa-a62f-11e4-94b4-db60178f3d04.gif)
+![install](https://cloud.githubusercontent.com/assets/200635/5915016/3d92455e-a632-11e4-9ff4-d3553b6774c0.gif)
 
 # Supported Frameworks
 
@@ -120,7 +120,7 @@ Notes:
 - Running with `--autoreload` will only run the tests that have a `watch_glob` in their config.  Which makes sense once you think about it, but might suprise you at first glance.
 
 CI in action:
-![ci](https://cloud.githubusercontent.com/assets/200635/5914847/4fcc1414-a62f-11e4-8691-966892198c45.gif)
+![ci-small-2](https://cloud.githubusercontent.com/assets/200635/5915017/3dce3852-a632-11e4-8c4e-ade981d98a71.gif)
 
 ## WIP (Work in Progress) tests
 
