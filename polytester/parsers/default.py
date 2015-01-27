@@ -4,4 +4,4 @@ class DefaultParser(BaseParser):
     name = "standard"
 
     def tests_passed(self, result):
-        return result.retcode == 0
+        return result.return_code == 0

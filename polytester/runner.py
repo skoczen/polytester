@@ -301,7 +301,7 @@ class PolytesterRunner(object):
                     self.processes[t.short_name] = p
                     self.results[t.short_name] = Bunch(
                         output=u"",
-                        retcode=None,
+                        return_code=None,
                         parser=t.parser,
                         test_obj=t,
                         passed=None,
@@ -321,14 +321,14 @@ class PolytesterRunner(object):
                         if err:
                             self.results[t.short_name].output += "\n%s" % err.decode("utf-8")
                             puts(err.decode("utf-8"))
-                        self.results[t.short_name].retcode = p.returncode
+                        self.results[t.short_name].return_code = p.returncode
                         del self.processes[t.short_name]
         else:
             for t in self.tests:
                 self.processes[t.short_name] = subprocess.Popen(t.command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                 self.results[t.short_name] = Bunch(
                     output=u"",
-                    retcode=None,
+                    return_code=None,
                     parser=t.parser,
                     test_obj=t,
                     passed=None,
@@ -347,7 +347,7 @@ class PolytesterRunner(object):
                             self.results[name].output += "\n%s" % out.decode("utf-8")
                         if err:
                             self.results[name].output += "\n%s" % err.decode("utf-8")
-                        self.results[name].retcode = p.returncode
+                        self.results[name].return_code = p.returncode
                         del self.processes[name]
 
         all_passed = True
@@ -372,7 +372,6 @@ class PolytesterRunner(object):
                         else:
                             pass_string += ""
                     except:
-                        import traceback; traceback.print_exc();
                         pass
                     puts(colored.red("✘ %s:%s tests failed." % (name, pass_string)))
                     
@@ -387,7 +386,6 @@ class PolytesterRunner(object):
                         else:
                             pass_string = ""
                     except:
-                        import traceback; traceback.print_exc();
                         pass
                     puts(colored.green("✔" + " %s:%s tests passed." % (name, pass_string)))
 

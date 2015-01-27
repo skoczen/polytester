@@ -61,7 +61,7 @@ In addition, polytester progressively upgrades to extra-nice output for the fram
 - [Python Nose](https://nose.readthedocs.org/en/latest/)
 - [Salad](https://github.com/salad/salad)
 
-But again, for extra clarity - if your test runner returns normal output codes, you can just use it, and it'll Just Work.
+But again, for extra clarity - if your test runner returns normal output codes, you can just drop it in and it'll work great.
 
 # Command-line options
 
@@ -76,7 +76,7 @@ There are a variety of options to make development simple.
 - `polytester foo` or `polytester foo,bar` just runs the test suite(s) specified.
 - `--autoreload` or `--ci` watches all files specified in a `watch_glob`, and immediately runs the relevant suite on file changes. Any running tests are killed.
 - `--wip` runs tests flagged as "work in progress" by running the `wip_command` for all suites that specify it.
-- `--verbose` dumps all output to the shell.  To prevent collisions, when run in this mode, test suites are run in serial, instead of the normal parallel execution.
+- `--verbose` or `-v` dumps all output to the shell.  To prevent collisions, when run in this mode, test suites are run in serial, instead of the normal parallel execution.
 - `--parallel n m` only runs test chunk `n` of `m`, for parallel build test environments. 
 - `--config foo.yml` specifies a different location for the config file.  Default is `tests.yml`
 
@@ -97,7 +97,7 @@ Having your tests auto-run when files change is super-handy.  With polytester, i
     ```yml
     python: 
         command: nosetests
-        watch_glob: "**/*.py"
+        watch_glob: "*.py"
         watch_dir: api
     ```
 
@@ -109,9 +109,11 @@ Having your tests auto-run when files change is super-handy.  With polytester, i
 
 Any time you change a file that matches the glob, polytester will immediately run the matching test suite.  Any running tests for that suite will be immediately killed.
 
-If `watch_dir` is not specified, it defaults to the current directory
+Notes:
 
-**Note:** running with `--autoreload` will only run the tests that have a `watch_glob` in their config.  Which makes sense once you think about it, but might suprise you at first glance.
+- If `watch_dir` is not specified, it defaults to the current directory.
+- To specify multiple file types, you can use standard unix globs, i.e. `*.html;*.js;*.css`.
+- Running with `--autoreload` will only run the tests that have a `watch_glob` in their config.  Which makes sense once you think about it, but might suprise you at first glance.
 
 
 ## WIP (Work in Progress) tests
@@ -133,6 +135,21 @@ Being able to tag and run certain groups of tests becomes a huge develoment time
     ```
 
 That's it!
+
+## Parallel Execution
+
+If you're running on a ci platform with parallel builds, like [CircleCI](http://circleci.com), the `--parallel` option can save you some time.
+
+Just set up your build config to use it, and pass in the appropriate shell variables.
+
+CircleCI `circle.yml` example
+```yml
+test:
+  override:
+    - polytester --parallel $CIRCLE_NODE_INDEX $CIRCLE_NODE_TOTAL
+```
+
+You're all set.  Your test suites will split out automatically, according to the number of build containers you have.
 
 
 ## Specifying test frameworks
@@ -181,7 +198,7 @@ Here's a yml file, with everything, just for easy reference.:
 python: 
     command: nosetests
     wip_command: nosetests -a wip
-    watch_glob: "**/*.py"
+    watch_glob: "*.py;*.html"  # Note you do need quotes because of the *.
     watch_dir: my_app/foo
     parser: my_parsers.MyNiftyCustomNoseParser
 ```
@@ -207,7 +224,7 @@ Just write a class that inherits `DefaultParser`, stick it somewhere on your pyt
 
         def tests_passed(self, result):
             # Required, the code below is the default in DefaultParser
-            return result.retcode == 0
+            return result.return_code == 0
 
         def num_failed(self, result):
             # Optional.
@@ -224,18 +241,18 @@ Just write a class that inherits `DefaultParser`, stick it somewhere on your pyt
             return int(m.group(0))
 
         def command_matches(self, command_string):
-            # Optional, used for trying to auto detect the test framework.
+            # Optional, used for trying to auto-detect the test framework.
             # Since this is totally custom, we just return false
             return False
     ```
 
-    For reference, `result` is an object with the following attributes:
+    For reference, `results` is an object with the following attributes:
 
-    - `results.output` - The stdout and stderr, in the order produced while running.
-    - `results.cleaned_output` - `results.output`, but stripped of all ANSI colors and escape codes.
-    - `results.retcode` - The return code.
-    - `results.parser` - An instance of the parser class. (i.e. you can call `result.parser.num_failed(result)`).
-    - `results.passed` - A boolean indicating if the tests have passed. `None` until a definitive answer is known.
+    - `output` - The stdout and stderr, in the order produced while running.
+    - `cleaned_output` - `output`, but stripped of all ANSI colors and escape codes.
+    - `return_code` - The return code.
+    - `passed` - A boolean indicating if the tests have passed. `None` until a definitive answer is known.
+    - `parser` - An instance of the parser class. (i.e. you can call `result.parser.num_failed(result)`).
 
 
 2. Specify it in your test.yml file.
