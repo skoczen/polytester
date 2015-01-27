@@ -20,4 +20,4 @@ class SaladParser(DefaultParser):
         return int(m[-1][0])
     
     def num_failed(self, result):
-        return self.num_total() - self.num_passed()
+        return self.num_total(result) - self.num_passed(result)

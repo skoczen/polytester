@@ -10,7 +10,7 @@ class KarmaParser(DefaultParser):
         return "karma" in command
 
     def num_passed(self, result):
-        return self.num_total() - self.num_failed()
+        return self.num_total(result) - self.num_failed(result)
 
     def num_total(self, result):
         # Executed 2 of 2 (1 FAILED)
@@ -28,4 +28,6 @@ class KarmaParser(DefaultParser):
             return int(fails[-1][-1])
         else:
             m = re.findall('Executed (\d+) of (\d+) SUCCESS', result.cleaned_output)
-            return int(m[-1][-1])
+            if len(m) > 0:
+                return 0
+

@@ -18,7 +18,7 @@ pip install polytester
 # Getting started
 
 
-1. Create a tests.yml file. The following example shows django, protractor, and karma (jasmine, mocha, etc) tests.
+1. Create a tests.yml file. The following example shows django, protractor, and karma (jasmine) tests.
     ```yml
     api:
         command: python manage.py test
@@ -216,7 +216,7 @@ Just write a class that inherits `DefaultParser`, stick it somewhere on your pyt
 
         def num_passed(self, result):
             # Optional.
-            return self.num_total() - self.num_failed()
+            return self.num_total(result) - self.num_failed(result)
 
         def num_total(self, result):
             # Optional.

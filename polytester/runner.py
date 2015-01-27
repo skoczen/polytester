@@ -295,17 +295,34 @@ class PolytesterRunner(object):
                 self.threads[t.short_name].start()
 
         if self.verbose:
-            for t in self.tests:
-                self.processes[t.short_name] = subprocess.Popen(t.command, shell=True)
-                self.processes[t.short_name].communicate()
-                self.results[t.short_name] = Bunch(
-                    output=u"",
-                    retcode=None,
-                    parser=t.parser,
-                    test_obj=t,
-                    passed=None,
-                )
-                self.results[t.short_name].retcode = self.processes[t.short_name].returncode
+            with indent(2):
+                for t in self.tests:
+                    p = subprocess.Popen(t.command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                    self.processes[t.short_name] = p
+                    self.results[t.short_name] = Bunch(
+                        output=u"",
+                        retcode=None,
+                        parser=t.parser,
+                        test_obj=t,
+                        passed=None,
+                    )
+                    while p.poll() is None:
+                        line = self.non_blocking_read(p.stdout)
+                        if line:
+                            self.results[t.short_name].output += "\n%s" % line.decode("utf-8")
+                            puts(line.decode("utf-8"))
+                        time.sleep(0.5)
+
+                    if p.returncode is not None:
+                        out, err = p.communicate()
+                        if out:
+                            self.results[t.short_name].output += "\n%s" % out.decode("utf-8")
+                            puts(out.decode("utf-8"))
+                        if err:
+                            self.results[t.short_name].output += "\n%s" % err.decode("utf-8")
+                            puts(err.decode("utf-8"))
+                        self.results[t.short_name].retcode = p.returncode
+                        del self.processes[t.short_name]
         else:
             for t in self.tests:
                 self.processes[t.short_name] = subprocess.Popen(t.command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -357,7 +374,7 @@ class PolytesterRunner(object):
                     except:
                         import traceback; traceback.print_exc();
                         pass
-                    puts(colored.red("✘ %s -%s tests failed." % (name, pass_string)))
+                    puts(colored.red("✘ %s:%s tests failed." % (name, pass_string)))
                     
                     with indent(2):
                         puts(u"%s" % r.output)
@@ -370,8 +387,9 @@ class PolytesterRunner(object):
                         else:
                             pass_string = ""
                     except:
+                        import traceback; traceback.print_exc();
                         pass
-                    puts(colored.green("✔" + " %s -%s tests passed." % (name, pass_string)))
+                    puts(colored.green("✔" + " %s:%s tests passed." % (name, pass_string)))
 
         if all_passed:
             puts()
