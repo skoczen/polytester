@@ -6,7 +6,7 @@ Polytester is a simple, groovy multi-language test runner.
 It makes it easy to run tests in your polygot projects.  Run python, javascript, ruby, java, and more side by side. Easily.
 
 
-Polytester works with any testing framework that runs in the shell (yo, that's pretty much everything on the planet), and ships with extra-smooth integration for lots of common frameworks including django, karma, protractor, and more.
+Polytester Just Works with any testing framework that runs in the shell (yo, that's pretty much everything on the planet), and ships with extra-smooth integration for lots of common frameworks including django, karma, protractor, and more.
 Polytester was built by [Steven Skoczen](http://stevenskoczen.com) at [BuddyUp](http://buddyup.org).  If you're in school, and could use a study buddy, check us out!
 
 # Installation
@@ -23,7 +23,7 @@ pip install polytester
     api:
         command: python manage.py test
     js:
-        command: karma
+        command: karma start karma.conf.js
     e2e:
         command: protractor
     ```
@@ -61,6 +61,7 @@ In addition, polytester progressively upgrades to extra-nice output for the fram
 - [Python Nose](https://nose.readthedocs.org/en/latest/)
 - [Salad](https://github.com/salad/salad)
 
+But again, for extra clarity - if your test runner returns normal output codes, you can just use it, and it'll Just Work.
 
 # Command-line options
 
@@ -73,9 +74,9 @@ Polytester will respond to `pt` or `polytester`.  Both do the exact same thing.
 There are a variety of options to make development simple.
 
 - `polytester foo` or `polytester foo,bar` just runs the test suite(s) specified.
-- `--verbose` dumps all output to the shell.  To prevent collisions, when run in this mode, test suites are run in serial, instead of the normal parallel execution.
-- `--wip` runs tests flagged as "work in progress" by running the `wip_command` for all suites that specify it.
 - `--autoreload` or `--ci` watches all files specified in a `watch_glob`, and immediately runs the relevant suite on file changes. Any running tests are killed.
+- `--wip` runs tests flagged as "work in progress" by running the `wip_command` for all suites that specify it.
+- `--verbose` dumps all output to the shell.  To prevent collisions, when run in this mode, test suites are run in serial, instead of the normal parallel execution.
 - `--parallel n m` only runs test chunk `n` of `m`, for parallel build test environments. 
 - `--config foo.yml` specifies a different location for the config file.  Default is `tests.yml`
 
@@ -169,7 +170,7 @@ Here's the full list of built-in parsers:
 - `ProtractorParser`
 - `SaladParser`
 
-If you need a parser not in this list, you can make it simply. See [Custom parsers](#writing-a-custom-parser) below.
+If you need a parser not in this list, you can make it by writing a few simple functions. See [Custom parsers](#writing-a-custom-parser) below.
 
 
 
