@@ -151,14 +151,14 @@ If you're running on a ci platform with parallel builds, like [CircleCI](http://
 
 Just set up your build config to use it, and pass in the appropriate shell variables.
 
-CircleCI `circle.yml` example
+For CircleCI, just set your `circle.yml` to:
 ```yml
 test:
   override:
     - polytester --parallel $CIRCLE_NODE_INDEX $CIRCLE_NODE_TOTAL
 ```
 
-You're all set.  Your test suites will split out automatically, according to the number of build containers you have.
+And you're all set.  Your test suites will split out automatically, according to the number of build containers you have.
 
 
 ## Specifying test frameworks
@@ -182,7 +182,7 @@ Detecting...
   ✔ python specified as nose tests.
 
 Running tests...
-  ✔ python passed.
+  ✔ python: 47 tests passed.
 
 ✔ All tests passed.
 ```
@@ -280,7 +280,7 @@ Just write a class that inherits `DefaultParser`, stick it somewhere on your pyt
       ✔ custom specified as my custom tests.
 
     Running tests...
-      ✔ custom passed.
+      ✔ custom: 18 tests passed.
 
     ✔ All tests passed.
     ```
@@ -326,7 +326,7 @@ But here's a short list of things that are rolling around in my head as future f
 
 - Better parsing of test outputs, to just list failed test file names and line numbers or other fancy niceties.
 - xUnit output
-- --failfast, for super-quick iteration.
+- `--failfast`, for super-quick iteration.
 - The ability for parsers to do better parallelization introspection (based on globs, etc)
 - Whatever great stuff you bring to the table!
 
