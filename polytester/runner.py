@@ -7,6 +7,7 @@ import fcntl
 import importlib
 import logging
 import os
+import re
 import time
 from threading import Thread
 import traceback
@@ -17,10 +18,18 @@ from watchdog.events import PatternMatchingEventHandler
 from yaml import load
 from yaml.scanner import ScannerError
 
-from .parsers import BaseParser, DefaultParser, DjangoParser
+from .parsers import *
 from .util import Bunch
 
-BUNDLED_PARSERS = [BaseParser, DefaultParser, DjangoParser]
+BUNDLED_PARSERS = [
+    BaseParser, 
+    DefaultParser, 
+    DjangoParser, 
+    KarmaParser, 
+    NoseParser, 
+    ProtractorParser,
+    SaladParser,
+]
 DEFAULT_PARSER = DefaultParser
 
 
@@ -65,13 +74,19 @@ class PolytesterRunner(object):
 
     def _fail(self, message):
         self._print_error(message)
-        sys.exit(1)
+        if not self.autoreload:
+            sys.exit(1)
 
     def _nice_traceback_and_quit(self):
         puts("Traceback: ")
         with indent(2):
             puts(traceback.format_exc(limit=1))
         sys.exit(1)
+
+    def strip_ansi_colors(self, string):
+        ansi_escape = re.compile(r'\\x1b([^m]*)?m')
+        return ansi_escape.sub('', repr(string))
+
 
     def __init__(self, arg_options):
         # arg_options is expected to be an argparse namespace.
@@ -215,17 +230,20 @@ class PolytesterRunner(object):
             wip=False,
         )
 
-    def add(self, test_command, parser=None, watch_glob=None, short_name=None, autodetected=None):
+    def add(self, test_command, parser=None, watch_glob=None, watch_dir=None, short_name=None, autodetected=None):
         if not short_name:
             short_name = test_command.split(" ")[0]
         if not parser:
             parser = DefaultParser()
+        if not watch_dir:
+            watch_dir = "."
 
         self.tests.append(Bunch(
             command=test_command,
             parser=parser,
             autodetected=autodetected,
             watch_glob=watch_glob,
+            watch_dir=watch_dir,
             short_name=short_name,
         ))
 
@@ -243,7 +261,7 @@ class PolytesterRunner(object):
 
     def handle_file_change(self, test_name, event):
         os.system('clear')
-        puts("Change detected in %s suite. Reloading..." % test_name)
+        puts("Change detected in '%s' in the %s suite. Reloading..." % (event.src_path.split("/")[-1],test_name))
         for name, p in self.processes.items():
             p.kill()
         self.run()
@@ -251,7 +269,7 @@ class PolytesterRunner(object):
     def watch_thread(self, test):
         event_handler = AutoreloadHandler(runner=self, test_name=test.short_name, patterns=[test.watch_glob,])
         observer = Observer()
-        observer.schedule(event_handler, ".", recursive=True)
+        observer.schedule(event_handler, test.watch_dir, recursive=True)
         observer.start()
         try:
             while True:
@@ -267,7 +285,7 @@ class PolytesterRunner(object):
         self.results = {}
         self.processes = {}
 
-        if self.autoreload:
+        if self.autoreload and self.threads == {}:
             logging.basicConfig(level=logging.INFO,
                                 format='%(asctime)s - %(message)s',
                                 datefmt='%Y-%m-%d %H:%M:%S')
@@ -320,22 +338,24 @@ class PolytesterRunner(object):
             for t in self.tests:
                 name = t.short_name
                 r = self.results[name]
+                r.cleaned_output = self.strip_ansi_colors(r.output)
 
                 r.passed = r.parser.tests_passed(r)
                 pass_string = ""
                 if not r.passed:
                     all_passed = False
                     try:
-                        if r.parser.hasattr("num_fails"):
-                            pass_string = " %s" % r.parser.num_fails(r)
+                        if hasattr(r.parser, "num_failed"):
+                            pass_string = " %s" % r.parser.num_failed(r)
                         else:
                             pass_string = " some"
 
-                        if r.parser.hasattr("num_total"):
+                        if hasattr(r.parser, "num_total"):
                             pass_string += " of %s" % r.parser.num_total(r)
                         else:
                             pass_string += ""
                     except:
+                        import traceback; traceback.print_exc();
                         pass
                     puts(colored.red("✘ %s -%s tests failed." % (name, pass_string)))
                     
@@ -345,8 +365,8 @@ class PolytesterRunner(object):
                             
                 else:
                     try:
-                        if r.parser.hasattr("num_passes"):
-                            pass_string = " %s" % r.parser.num_passes(r)
+                        if hasattr(r.parser, "num_passed"):
+                            pass_string = " %s" % r.parser.num_passed(r)
                         else:
                             pass_string = ""
                     except:
@@ -360,4 +380,5 @@ class PolytesterRunner(object):
         else:
             self._fail("✘ Tests failed.")
             puts()
-            sys.exit(1)
+            if not self.autoreload:
+                sys.exit(1)

@@ -3,8 +3,8 @@ import re
 from .default import DefaultParser
 
 
-class DjangoParser(DefaultParser):
-    name = "django"
+class NoseParser(DefaultParser):
+    name = "nose"
 
     def command_matches(self, command):
         return "manage.py test" in command

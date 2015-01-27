@@ -5,8 +5,8 @@ Polytester is a simple, groovy multi-language test runner.
 
 It makes it easy to run tests in your polygot projects.  Run python, javascript, ruby, java, and more side by side. Easily.
 
-Polytester works with any testing framework that runs in the shell (yo, that's pretty much everything on the planet), and ships with extra-smooth integration for lots of common frameworks including django, jasmine, karma, and more.
 
+Polytester works with any testing framework that runs in the shell (yo, that's pretty much everything on the planet), and ships with extra-smooth integration for lots of common frameworks including django, karma, protractor, and more.
 Polytester was built by [Steven Skoczen](http://stevenskoczen.com) at [BuddyUp](http://buddyup.org).  If you're in school, and could use a study buddy, check us out!
 
 > NOTE:  Polytester is being built via [Readme Driven Development](http://tom.preston-werner.com/2010/08/23/readme-driven-development.html), so as of January 23, 2015 (two days in), `--ci` and `--failfast` have yet to be implemented.
@@ -21,15 +21,15 @@ pip install polytester
 
 # Getting started
 
-1. Create a tests.yml file. The following example shows django, jasmine, and protractor tests.
 
+1. Create a tests.yml file. The following example shows django, protractor, and karma (jasmine, mocha, etc) tests.
     ```yml
     api:
         command: python manage.py test
     js:
-        command: jasmine
+        command: karma
     e2e:
-        command: karma e2e
+        command: protractor
     ```
 
 
@@ -39,9 +39,8 @@ pip install polytester
     $ polytester
     Detecting...
       ✔ api detected as django tests.
-      ✔ e2e detected as karma tests.
-      ✔ js detected as jasmine tests.
-
+      ✔ e2e detected as protractor tests.
+      ✔ js detected as karma tests.
     Running tests...
       ✔ api - 35 tests passed.
       ✔ e2e - 17 tests passed.
@@ -61,8 +60,8 @@ Any test framework that returns standard error codes will work out of the box.  
 In addition, polytester progressively upgrades to extra-nice output for the frameworks it has parsers for. As of v1.0, the following parsers are built-in, and it's simple to write your own.  More are very much welcome via PR, and as you [can see below](#writing-a-custom-parser), writing them is easy!
 
 - [Django](https://www.djangoproject.com/)
-- [Jasmine](http://jasmine.github.io/)
 - [Karma](http://karma-runner.github.io/)
+- [Protractor](http://angular.github.io/protractor/)
 - [Python Nose](https://nose.readthedocs.org/en/latest/)
 - [Salad](https://github.com/salad/salad)
 
@@ -78,7 +77,6 @@ Polytester will respond to `pt` or `polytester`.  Both do the exact same thing.
 There are a variety of options to make development simple.
 
 - `polytester foo` or `polytester foo,bar` just runs the test suite(s) specified.
-- `--failfast` stops running tests when the first fail is found.
 - `--verbose` dumps all output to the shell.  To prevent collisions, when run in this mode, test suites are run in serial, instead of the normal parallel execution.
 - `--wip` runs tests flagged as "work in progress" by running the `wip_command` for all suites that specify it.
 - `--autoreload` or `--ci` watches all files specified in a `watch_glob`, and immediately runs the relevant suite on file changes. Any running tests are killed.
@@ -97,12 +95,13 @@ Here's all the goodness.
 
 Having your tests auto-run when files change is super-handy.  With polytester, it's simple.
 
-1. Specify a `watch_glob` in your `tests.yml`
+1. Specify a `watch_glob` (and optionally a `watch_dir`) in your `tests.yml`
 
     ```yml
     python: 
         command: nosetests
         watch_glob: "**/*.py"
+        watch_dir: api
     ```
 
 2. Run with `--autoreload`
@@ -112,6 +111,8 @@ Having your tests auto-run when files change is super-handy.  With polytester, i
     ```
 
 Any time you change a file that matches the glob, polytester will immediately run the matching test suite.  Any running tests for that suite will be immediately killed.
+
+If `watch_dir` is not specified, it defaults to the current directory
 
 **Note:** running with `--autoreload` will only run the tests that have a `watch_glob` in their config.  Which makes sense once you think about it, but might suprise you at first glance.
 
@@ -168,8 +169,8 @@ Here's the full list of built-in parsers:
 - `DefaultParser` (Just listens to exit codes, no support for number of tests.)
 - `NoseParser`
 - `DjangoParser`
-- `JasmineParser`
 - `KarmaParser`
+- `ProtractorParser`
 - `SaladParser`
 
 If you need a parser not in this list, you can make it simply. See [Custom parsers](#writing-a-custom-parser) below.
@@ -184,6 +185,7 @@ python:
     command: nosetests
     wip_command: nosetests -a wip
     watch_glob: "**/*.py"
+    watch_dir: my_app/foo
     parser: my_parsers.MyNiftyCustomNoseParser
 ```
 
@@ -266,8 +268,7 @@ $ polytester
 Detecting...
   ✔ api detected as django tests.
   ✔ e2e detected as karma tests.
-  ✔ js detected as jasmine tests.
-
+  ✔ js detected as protractor tests.
 Running tests...
   ✘ api - 1 of 35 tests failed.
 
@@ -299,6 +300,7 @@ But here's a short list of things that are rolling around in my head as future f
 
 - Better parsing of test outputs, to just list failed test file names and line numbers or other fancy niceties.
 - xUnit output
+- --failfast, for super-quick iteration.
 - The ability for parsers to do better parallelization introspection (based on globs, etc)
 - Whatever great stuff you bring to the table!
 
