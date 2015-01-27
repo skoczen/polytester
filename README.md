@@ -327,7 +327,7 @@ Running tests...
 
 #### 1.0 - Jan 27, 2015 - "Rick James"
 
-- all RDD features in, we're using polytester in production.
+- All RDD features in, we're using polytester in production.
 
 #### 0.1.3 - Jan 22, 2015
 
@@ -335,11 +335,11 @@ Running tests...
 
 #### 0.1.2 - Jan 21, 2015
 
-- works on python 3. First stable release!
+- Works on python 3. First stable release!
 
 #### 0.1.1 - Jan 21, 2015
 
-- fixes inclusion of wsgiref, which breaks python 3 due to a print.
+- Fixes inclusion of wsgiref, which breaks python 3 due to a print.
 
 #### 0.1 - Jan 21, 2015
 
