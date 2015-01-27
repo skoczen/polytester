@@ -9,10 +9,6 @@ It makes it easy to run tests in your polygot projects.  Run python, javascript,
 Polytester works with any testing framework that runs in the shell (yo, that's pretty much everything on the planet), and ships with extra-smooth integration for lots of common frameworks including django, karma, protractor, and more.
 Polytester was built by [Steven Skoczen](http://stevenskoczen.com) at [BuddyUp](http://buddyup.org).  If you're in school, and could use a study buddy, check us out!
 
-> NOTE:  Polytester is being built via [Readme Driven Development](http://tom.preston-werner.com/2010/08/23/readme-driven-development.html), so as of January 23, 2015 (two days in), `--ci` and `--failfast` have yet to be implemented.
-> 
-> But I work fast.  Expect everything here to be supported early next week.
-
 # Installation
 
 ```
@@ -205,8 +201,8 @@ Just write a class that inherits `DefaultParser`, stick it somewhere on your pyt
     ```python
     from polytester.parsers import DefaultParser
 
-    class Pep8Parser(DefaultParser):
-        name = "my custom pep8"
+    class MyCustomParser(DefaultParser):
+        name = "my custom"
 
         def tests_passed(self, result):
             # Required, the code below is the default in DefaultParser
@@ -214,15 +210,17 @@ Just write a class that inherits `DefaultParser`, stick it somewhere on your pyt
 
         def num_failed(self, result):
             # Optional.
-            return re.match("<?foo_int:\d> found", result.output)
+            m = re.match("(\d+) failed", result.output)
+            return int(m.group(0))
 
         def num_passed(self, result):
             # Optional.
-            return re.match("<?foo_int:\d> found", result.output)
+            return self.num_total() - self.num_failed()
 
         def num_total(self, result):
             # Optional.
-            return re.match("<?foo_int:\d> found", result.output)
+            m = re.match("(\d+) total", result.output)
+            return int(m.group(0))
 
         def command_matches(self, command_string):
             # Optional, used for trying to auto detect the test framework.
@@ -233,6 +231,7 @@ Just write a class that inherits `DefaultParser`, stick it somewhere on your pyt
     For reference, `result` is an object with the following attributes:
 
     - `results.output` - The stdout and stderr, in the order produced while running.
+    - `results.cleaned_output` - `results.output`, but stripped of all ANSI colors and escape codes.
     - `results.retcode` - The return code.
     - `results.parser` - An instance of the parser class. (i.e. you can call `result.parser.num_failed(result)`).
     - `results.passed` - A boolean indicating if the tests have passed. `None` until a definitive answer is known.
@@ -241,9 +240,9 @@ Just write a class that inherits `DefaultParser`, stick it somewhere on your pyt
 2. Specify it in your test.yml file.
 
     ```yml
-    pep8: 
-        command: pep8
-        parser: my_parsers.Pep8Parser
+    custom: 
+        command: run_tests.sh
+        parser: my_parsers.MyCustomParser
     ```
 
 3. Run your tests like normal!
@@ -251,10 +250,10 @@ Just write a class that inherits `DefaultParser`, stick it somewhere on your pyt
     ```bash
     $ polytester
     Detecting...
-      ✔ pep8 specified as my custom pep8 tests.
+      ✔ custom specified as my custom tests.
 
     Running tests...
-      ✔ pep8 passed.
+      ✔ custom passed.
 
     ✔ All tests passed.
     ```

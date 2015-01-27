@@ -1,6 +1,6 @@
-Until proper docs go in.
+Kept here until proper docs go in.
 
-1.0 - ?? - "Rick James" - all RDD features in.
+1.0 - Jan 27, 2015 - "Rick James" - all RDD features in, we're using polytester in production.
 
 0.1.3 - Jan 22, 2015 - Everything but --ci, --failfast, and a couple parsers is in.
 
