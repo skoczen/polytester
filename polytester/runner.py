@@ -411,5 +411,5 @@ class PolytesterRunner(object):
                 puts()
                 if not self.autoreload:
                     sys.exit(1)
-        except (KeyboardInterrupt, SystemExit):
+        except KeyboardInterrupt:
             self.handle_keyboard_exception()

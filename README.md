@@ -335,6 +335,14 @@ Polytester has also has had help from lots of coders. Alphabetically:
 
 # Releases
 
+#### 1.1 - Jan 30, 2015
+
+- The start of a test suite for polytester, thanks entirely to [joshfriend](https://github.com/joshfriend).
+- Parser for the python unittest runner added by [joshfriend](https://github.com/joshfriend).
+- Bugfix to nose parser, by [joshfriend](https://github.com/joshfriend).
+- Fixed a bug in test output introduced by 1.0.2.  Thanks to [joshfriend](https://github.com/joshfriend) for the report.
+- Noticing a pattern?  That pattern is that people like [joshfriend](https://github.com/joshfriend) are what makes open-source awesome.
+
 #### 1.0.2 - Jan 30, 2015
 
 - Adds support for py.test, thanks to [joshfriend](https://github.com/joshfriend).
