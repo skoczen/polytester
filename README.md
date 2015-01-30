@@ -65,6 +65,7 @@ In addition, polytester progressively upgrades to extra-nice output for the fram
 - [Protractor](http://angular.github.io/protractor/)
 - [Python Nose](https://nose.readthedocs.org/en/latest/)
 - [Python py.test](http://pytest.org/latest/)
+- [Python unittest](https://docs.python.org/3/library/unittest.html)
 - [Salad](https://github.com/salad/salad)
 
 But again, for extra clarity - if your test runner returns normal output codes, you can just drop it in and it'll work great.

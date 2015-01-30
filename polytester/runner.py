@@ -28,6 +28,7 @@ BUNDLED_PARSERS = [
     KarmaParser, 
     NoseParser, 
     PyTestParser,
+    UnittestParser,
     ProtractorParser,
     SaladParser,
 ]

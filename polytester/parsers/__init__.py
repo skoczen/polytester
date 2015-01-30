@@ -6,3 +6,4 @@ from .nose import NoseParser
 from .protractor import ProtractorParser
 from .salad import SaladParser
 from .pytest import PyTestParser
+from .unittest import UnittestParser
