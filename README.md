@@ -8,7 +8,7 @@ It makes it easy to run tests in your polygot projects.  Run python, javascript,
 Polytester Just Works with any testing framework that runs in the shell (yo, that's pretty much everything on the planet), and ships with extra-smooth integration for lots of common frameworks including django, karma, protractor, and more.
 Polytester was built by [Steven Skoczen](http://stevenskoczen.com) at [BuddyUp](http://buddyup.org).  If you're in school, and could use a study buddy, check us out!
 
-[![Build Status](https://travis-ci.org/skoczen/polytester.svg)](https://travis-ci.org/skoczen/polytester)
+[![Build Status](https://travis-ci.org/skoczen/polytester.svg)](https://travis-ci.org/skoczen/polytester) ![Pypi Badge](https://badge.fury.io/py/polytester.png)   ![Downloads Badge](https://pypip.in/d/polytester/badge.png)
 
 # Installation
 
