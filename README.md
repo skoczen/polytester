@@ -382,7 +382,7 @@ As with all the open-source projects I run, I leave the future pretty open to wh
 
 But here's a short list of things that are rolling around in my head as future features:
 
-- Test coverage.  Yes, I appreciate the irony.
+- Full test coverage.  We've got a good start, but 100% (or near) coverage with some integration tests is the long-term goal.
 - Better parsing of test outputs, to just list failed test file names and line numbers or other fancy niceties.
 - xUnit output
 - `--failfast`, for super-quick iteration.
