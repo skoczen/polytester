@@ -337,6 +337,10 @@ Polytester has also has had help from lots of coders. Alphabetically:
 
 # Releases
 
+#### 1.1.1 - Jan 30, 2015
+
+- Copypasta bugfix to django parser.
+
 #### 1.1 - Jan 30, 2015
 
 - The start of a test suite for polytester, thanks entirely to [joshfriend](https://github.com/joshfriend).
