@@ -35,7 +35,7 @@ setup(
     install_requires=reqs,
     packages=find_packages(),
     include_package_data=True,
-    keywords = ["test", "multi-language", "nose", "karma", "jasmine", "rails", "runner", "junit"],
+    keywords = ["test", "multi-language", "nose", "karma", "jasmine", "rails", "runner", "junit", "pytest"],
     classifiers=[
         "Programming Language :: Python",
         "Intended Audience :: Developers",
