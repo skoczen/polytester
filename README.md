@@ -396,3 +396,15 @@ We've all been newbie coders, we've all had bad days, we've all been frustrated 
 
 This doesn't mean we don't have honest, spirited discussions about the direction to move polytester forward, or how to implement a feature. We do. We just respect one other while we do it. Not so bad, right? :)
 
+### Testing
+A `Makefile` is included for your testing convenience. Here's a few sample commands:
+
+    $ make test       # run the tests on the default python version (3.4)
+    $ make test-all   # run tests on all supported pythons (2.7, 3.3, 3.4)
+    $ make flake8     # run a pep8/pyflakes style/syntax check
+    $ make clean      # remove cached/compiled python test data
+    $ make clean-all  # rebuild the virtualenv from scratch
+
+The `Makefile` will take care of creating a [virtualenv](https://pypi.python.org/pypi/virtualenv) and installing the required dependencies (and keep them up to date).
+
+If you don't have all the supported versions of Python installed, don't worry! Push your changes to a branch, open a pull-request, and [Travis](https://travis-ci.org/) will run the tests on your behalf.
