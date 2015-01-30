@@ -1,5 +1,6 @@
 from .base import BaseParser
 
+
 class DefaultParser(BaseParser):
     name = "standard"
 

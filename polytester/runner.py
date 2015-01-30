@@ -2,7 +2,7 @@
 
 from collections import OrderedDict
 from clint.textui import colored
-from clint.textui import puts, indent, columns
+from clint.textui import puts, indent
 import fcntl
 import importlib
 import logging
@@ -18,15 +18,24 @@ from watchdog.events import PatternMatchingEventHandler
 from yaml import load
 from yaml.scanner import ScannerError
 
-from .parsers import *
+from .parsers.base import BaseParser
+from .parsers.default import DefaultParser
+from .parsers.django import DjangoParser
+from .parsers.karma import KarmaParser
+from .parsers.nose import NoseParser
+from .parsers.protractor import ProtractorParser
+from .parsers.salad import SaladParser
+from .parsers.pytest import PyTestParser
+from .parsers.unittest import UnittestParser
+
 from .util import Bunch
 
 BUNDLED_PARSERS = [
-    BaseParser, 
-    DefaultParser, 
-    DjangoParser, 
-    KarmaParser, 
-    NoseParser, 
+    BaseParser,
+    DefaultParser,
+    DjangoParser,
+    KarmaParser,
+    NoseParser,
     PyTestParser,
     UnittestParser,
     ProtractorParser,
@@ -50,7 +59,7 @@ class AutoreloadHandler(PatternMatchingEventHandler):
 
     def process(self, event):
         """
-        event.event_type 
+        event.event_type
             'modified' | 'created' | 'moved' | 'deleted'
         event.is_directory
             True | False
@@ -88,7 +97,6 @@ class PolytesterRunner(object):
     def strip_ansi_colors(self, string):
         ansi_escape = re.compile(r'\\x1b([^m]*)?m')
         return ansi_escape.sub('', repr(string))
-
 
     def __init__(self, arg_options):
         # arg_options is expected to be an argparse namespace.
@@ -139,8 +147,6 @@ class PolytesterRunner(object):
             except:
                 self._fail(puts(traceback.format_exc()))
 
-
-            num_total = len(self.test_config.items())
             current_num = 0
             for name, options in self.test_config.items():
                 run_suite = False
@@ -165,7 +171,7 @@ class PolytesterRunner(object):
 
                 if run_suite:
                     if wip:
-                        if not "wip_command" in options:
+                        if "wip_command" not in options:
                             self._fail("%s is missing a wip_command." % name)
                         else:
                             command = options["wip_command"]
@@ -176,7 +182,7 @@ class PolytesterRunner(object):
                                 pass
 
                     else:
-                        if not "command" in options:
+                        if "command" not in options:
                             self._fail("%s is missing a command." % name)
                         else:
                             command = options["command"]
@@ -185,9 +191,8 @@ class PolytesterRunner(object):
                                 del options["wip_command"]
                             except KeyError:
                                 pass
-            
 
-                    if not "short_name" in options:
+                    if "short_name" not in options:
                         options["short_name"] = name
 
                     if "parser" in options:
@@ -195,8 +200,10 @@ class PolytesterRunner(object):
                         try:
                             components = options["parser"].split(".")
                             if len(components) < 2:
-                                self._fail("'%s' in the %s section of tests.yml does not have both a module and a class. Please format as module.ParserClass." % (
-                                    options["parser"], name))
+                                self._fail(
+                                    "'%s' in the %s section of tests.yml does not have both a module and a class."
+                                    "Please format as module.ParserClass." % (options["parser"], name)
+                                )
                             else:
                                 module = ".".join(components[:-1])
                                 class_name = components[-1]
@@ -204,7 +211,10 @@ class PolytesterRunner(object):
                             i = importlib.import_module(module)
                             options["parser"] = i.getattr(class_name)()
                         except ImportError:
-                            self._fail("Unable to find a parser called '%s' for %s on your PYTHONPATH." % (options["parser"], name))
+                            self._fail(
+                                "Unable to find a parser called '%s' for %s on your PYTHONPATH." %
+                                (options["parser"], name)
+                            )
                     else:
                         for p in self.parsers:
                             if hasattr(p, "command_matches"):
@@ -214,7 +224,7 @@ class PolytesterRunner(object):
                         if "parser" not in options:
                             options["parser"] = DEFAULT_PARSER()
                     try:
-                        self.add(command, **options) 
+                        self.add(command, **options)
                     except TypeError:
                         self._print_error("Unsupported attribute in tests.yml file.")
                         self._nice_traceback_and_quit()
@@ -266,13 +276,13 @@ class PolytesterRunner(object):
 
     def handle_file_change(self, test_name, event):
         os.system('clear')
-        puts("Change detected in '%s' in the %s suite. Reloading..." % (event.src_path.split("/")[-1],test_name))
+        puts("Change detected in '%s' in the %s suite. Reloading..." % (event.src_path.split("/")[-1], test_name))
         for name, p in self.processes.items():
             p.kill()
         self.run()
 
     def watch_thread(self, test):
-        event_handler = AutoreloadHandler(runner=self, test_name=test.short_name, patterns=[test.watch_glob,])
+        event_handler = AutoreloadHandler(runner=self, test_name=test.short_name, patterns=[test.watch_glob, ])
         observer = Observer()
         observer.schedule(event_handler, test.watch_dir, recursive=True)
         observer.start()
@@ -324,7 +334,6 @@ class PolytesterRunner(object):
                                 self.results[t.short_name].output += "\n%s" % line.decode("utf-8")
                                 puts(line.decode("utf-8"))
                             time.sleep(0.5)
-                                
 
                         if p.returncode is not None:
                             out, err = p.communicate()
@@ -338,7 +347,9 @@ class PolytesterRunner(object):
                             del self.processes[t.short_name]
             else:
                 for t in self.tests:
-                    self.processes[t.short_name] = subprocess.Popen(t.command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                    self.processes[t.short_name] = subprocess.Popen(
+                        t.command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+                    )
                     self.results[t.short_name] = Bunch(
                         output=u"",
                         return_code=None,
@@ -387,11 +398,9 @@ class PolytesterRunner(object):
                         except:
                             pass
                         puts(colored.red("✘ %s:%s tests failed." % (name, pass_string)))
-                        
+
                         with indent(2):
                             puts(u"%s" % r.output)
-
-                                
                     else:
                         try:
                             if hasattr(r.parser, "num_passed"):

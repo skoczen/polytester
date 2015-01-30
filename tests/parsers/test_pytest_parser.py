@@ -3,7 +3,7 @@
 import pytest
 from mock import Mock
 
-from polytester.parsers import PyTestParser
+from polytester.parsers.pytest import PyTestParser
 
 parser = PyTestParser()
 

@@ -1,5 +1,4 @@
 import re
-
 from .default import DefaultParser
 
 
@@ -18,6 +17,6 @@ class SaladParser(DefaultParser):
         # 3 steps (3 passed)
         m = re.findall('(\d+) steps \((\d+) passed\)', result.cleaned_output)
         return int(m[-1][0])
-    
+
     def num_failed(self, result):
         return self.num_total(result) - self.num_passed(result)

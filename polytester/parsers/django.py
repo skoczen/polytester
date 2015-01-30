@@ -16,7 +16,7 @@ class DjangoParser(DefaultParser):
         # Ran 2 test(s) in nnn seconds.
         m = re.findall('Ran (\d+) tests?', result.output)
         return int(m[-1][0])
-    
+
     def num_failed(self, result):
         # If failed, you'll see one of
         # FAILED (failures=1)

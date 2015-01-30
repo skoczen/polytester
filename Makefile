@@ -96,7 +96,7 @@ check: flake8
 
 .PHONY: flake8
 flake8: depends
-	$(FLAKE8) $(PACKAGE)
+	$(FLAKE8) $(PACKAGE) --max-line-length=120
 
 .PHONY: pep257
 pep257: depends

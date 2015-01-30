@@ -3,7 +3,7 @@
 import pytest
 from mock import Mock
 
-from polytester.parsers import NoseParser
+from polytester.parsers.nose import NoseParser
 
 parser = NoseParser()
 
