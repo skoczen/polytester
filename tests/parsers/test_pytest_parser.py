@@ -8,11 +8,24 @@ from polytester.parsers import PyTestParser
 parser = PyTestParser()
 
 
+def _get_statusline(params):
+    """Generate a mock statusline like py.test would output."""
+    info_elements = []
+    if 'failed' in params:
+        info_elements.append('{failed} failed')
+    if 'passed' in params:
+        info_elements.append('{passed} passed')
+    if 'error' in params:
+        info_elements.append('{error} error')
+    info_string = ', '.join(info_elements)
+    return '=== {0} in 1.00 seconds ==='.format(info_string)
+
+
 class TestPyTestParser(object):
     @pytest.mark.parametrize('cmd,should_match', [
         ('py.test', True,),
         ('python -m py.test', True,),
-        ('coverate run --source foo -m py.test', True,),
+        ('coverage run --source foo -m py.test', True,),
         ('nosetests', False,),
         ('unittest', False,),
     ])
@@ -20,69 +33,59 @@ class TestPyTestParser(object):
         """Verify detection of invocation of py.test"""
         assert parser.command_matches(cmd) == should_match
 
-    def test_no_tests(self):
-        """Verify parsing of no collected tests"""
-        statusline = '=== in 0.00 seconds ==='
-        r = Mock()
-        r.output = statusline
-        assert parser.num_passed(r) == 0
-        assert parser.num_failed(r) == 0
-        assert parser.num_error(r) == 0
-        assert parser.num_total(r) == 0
+    @pytest.mark.parametrize('params', [
+        # No tests collected at all
+        {},
 
-    @pytest.mark.parametrize('total', [
-        1,
-        10,
-        100,
-        1000,
-        123456789,
-    ])
-    def test_all_success(self, total):
-        """Verify parsing of successfull test cases when all pass"""
-        statusline = '=== {0} passed in 1.00 seconds ==='
-        r = Mock()
-        r.output = statusline.format(total)
-        assert parser.num_passed(r) == total
-        assert parser.num_failed(r) == 0
-        assert parser.num_error(r) == 0
-        assert parser.num_total(r) == total
+        # Only passed tests
+        {'passed': 1},
+        {'passed': 10},
+        {'passed': 100},
+        {'passed': 1000},
+        {'passed': 123456789},
 
-    @pytest.mark.parametrize('passed,failed', [
-        (1, 1,),
-        (10, 1,),
-        (1, 10,),
-        (10, 10,),
-        (100, 100,),
-    ])
-    def test_some_fail_some_pass(self, passed, failed):
-        """Verify parsing of successfull and failed test cases when some pass
-        and some fail.
-        """
-        statusline = '=== {failed} failed, {passed} passed in 1.00 seconds ==='
-        r = Mock()
-        r.output = statusline.format(failed=failed, passed=passed)
-        assert parser.num_passed(r) == passed
-        assert parser.num_failed(r) == failed
-        assert parser.num_error(r) == 0
-        assert parser.num_total(r) == passed + failed
+        # Only failed tests
+        {'failed': 1},
+        {'failed': 10},
+        {'failed': 100},
+        {'failed': 1000},
+        {'failed': 123456789},
 
-    @pytest.mark.parametrize('passed,failed,error', [
-        (1, 1, 1,),
-        (10, 1, 1,),
-        (1, 1, 10,),
-        (10, 1, 1,),
-        (1, 10, 1,),
-        (10, 10, 1,),
-        (100, 100, 1,),
+        # Only errored tests
+        {'error': 1},
+        {'error': 10},
+        {'error': 100},
+        {'error': 1000},
+        {'error': 123456789},
+
+        # Some error, some failed
+        {'error': 10, 'failed': 1},
+        {'error': 1, 'failed': 10},
+
+        # Some error, some passed
+        {'error': 10, 'passed': 1},
+        {'error': 1, 'passed': 10},
+
+        # Some passed, some failed
+        {'passed': 10, 'failed': 1},
+        {'passed': 1, 'failed': 10},
+
+        # Some error, some failed, some passed
+        {'error': 10, 'failed': 1, 'passed': 100},
+        {'error': 1, 'failed': 10, 'passed': 100},
     ])
-    def test_some_fail_some_pass_some_error(self, passed, failed, error):
-        """Verify parsing of combination of paseed/failed/errored tests."""
-        statusline = ('=== {failed} failed, {passed} passed, {error} error in '
-                      '1.00 seconds ===')
+    def test_status_parsers(self, params):
+        statusline = _get_statusline(params)
         r = Mock()
-        r.output = statusline.format(failed=failed, passed=passed, error=error)
-        assert parser.num_passed(r) == passed
-        # Result collector currently counts errors as failures
-        assert parser.num_failed(r) == failed + error
-        assert parser.num_error(r) == error
-        assert parser.num_total(r) == passed + failed + error
+        r.output = statusline.format(**params)
+
+        expected_passed = params.get('passed', 0)
+        expected_error = params.get('error', 0)
+        # Result collector currently counts errored tests as failed
+        expected_failed = params.get('failed', 0) + expected_error
+        expected_total = expected_passed + expected_failed
+
+        assert parser.num_passed(r) == expected_passed
+        assert parser.num_failed(r) == expected_failed
+        assert parser.num_error(r) == expected_error
+        assert parser.num_total(r) == expected_total
