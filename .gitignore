@@ -30,6 +30,11 @@ nosetests.xml
 .mr.developer.cfg
 .project
 .pydevproject
+__pycache__/
+htmlcov/
+
+# virtualenv
+env/
 
 README.html
 
