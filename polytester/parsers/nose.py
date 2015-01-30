@@ -7,7 +7,7 @@ class NoseParser(DefaultParser):
     name = "nose"
 
     def command_matches(self, command):
-        return "nosetests" in command
+        return "nosetests" in command or '-m nose' in command
 
     def num_passed(self, result):
         return self.num_total(result) - self.num_failed(result)
