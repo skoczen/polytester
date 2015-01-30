@@ -3,8 +3,7 @@
 
 Polytester is a simple, groovy multi-language test runner.
 
-It makes it easy to run tests in your polygot projects.  Run python, javascript, ruby, java, and more side by side. Easily.
-
+It makes it easy to run tests in your polygot projects.  Run python, javascript, ruby, java, and more side by side.  It abstracts away the pain and config and lets you just get get developing. Easily.
 
 Polytester Just Works with any testing framework that runs in the shell (yo, that's pretty much everything on the planet), and ships with extra-smooth integration for lots of common frameworks including django, karma, protractor, and more.
 Polytester was built by [Steven Skoczen](http://stevenskoczen.com) at [BuddyUp](http://buddyup.org).  If you're in school, and could use a study buddy, check us out!
@@ -319,7 +318,25 @@ Running tests...
 ```
 
 
+# Built on the shoulders of giants
+
+Polytester leverages some fantastic libraries.  It wouldn't exist without them.
+
+- [Clint](https://github.com/kennethreitz/clint) for all the nice shell output,
+- [Watchdog](https://github.com/gorakhargosh/watchdog) for the magical file watching,
+- [PyYAML](http://pyyaml.org/) because nobody should have to think about parsing yaml files again.
+
+Polytester has also has had help from lots of coders. Alphabetically:
+
+- [joshfriend](https://github.com/joshfriend) added py.test support, and spotted a bug on python 2.7.x with `--ci`
+
+
 # Releases
+
+#### 1.0.2 - Jan 30, 2015
+
+- Adds support for py.test, thanks to [joshfriend](https://github.com/joshfriend).
+- Fixes support for KeyboardInterrupts on python 2.7.x, thanks to the report by [joshfriend](https://github.com/joshfriend).
 
 #### 1.0.1 - Jan 27, 2015 
 
