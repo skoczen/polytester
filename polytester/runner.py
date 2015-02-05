@@ -278,7 +278,8 @@ class PolytesterRunner(object):
         os.system('clear')
         puts("Change detected in '%s' in the %s suite. Reloading..." % (event.src_path.split("/")[-1], test_name))
         for name, p in self.processes.items():
-            p.kill()
+            p.terminate()
+            p.wait()
         self.run()
 
     def watch_thread(self, test):
@@ -415,10 +416,16 @@ class PolytesterRunner(object):
                 puts()
                 puts(colored.green("✔ All tests passed."))
                 puts()
+                if self.autoreload:
+                    while True:
+                        time.sleep(1)
             else:
                 self._fail("✘ Tests failed.")
                 puts()
                 if not self.autoreload:
                     sys.exit(1)
+                else:
+                    while True:
+                        time.sleep(1)
         except KeyboardInterrupt:
             self.handle_keyboard_exception()

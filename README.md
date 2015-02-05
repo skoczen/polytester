@@ -337,6 +337,11 @@ Polytester has also has had help from lots of coders. Alphabetically:
 
 # Releases
 
+
+#### 1.1.2 - Feb 5, 2015
+
+- Bugfix to `--ci` on python 3.4
+
 #### 1.1.1 - Jan 30, 2015
 
 - Copypasta bugfix to django parser.
