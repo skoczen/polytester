@@ -95,7 +95,7 @@ class PolytesterRunner(object):
         sys.exit(1)
 
     def strip_ansi_colors(self, string):
-        ansi_escape = re.compile(r'\\x1b([^m]*)?m')
+        ansi_escape = re.compile(r's/\x1b\[[0-9;]*m//g')
         return ansi_escape.sub('', repr(string))
 
     def __init__(self, arg_options):
