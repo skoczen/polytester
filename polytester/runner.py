@@ -6,10 +6,11 @@ from clint.textui import puts, indent
 import fcntl
 import importlib
 import logging
+from multiprocessing import Process
 import os
 import re
 import time
-from threading import Thread
+from threading import Thread, Event
 import traceback
 import subprocess
 import sys
@@ -42,6 +43,8 @@ BUNDLED_PARSERS = [
     SaladParser,
 ]
 DEFAULT_PARSER = DefaultParser
+
+run_thread = None
 
 
 class AutoreloadHandler(PatternMatchingEventHandler):
@@ -102,6 +105,7 @@ class PolytesterRunner(object):
         # arg_options is expected to be an argparse namespace.
 
         # Parse out arg_options.
+        self.run_thread = None
         self.autoreload = arg_options.autoreload
         self.verbose = arg_options.verbose
         config_file = arg_options.config_file
@@ -235,8 +239,6 @@ class PolytesterRunner(object):
                         puts(colored.yellow("- %s skipped (%s)." % (name, skip_message)))
                     else:
                         puts(colored.yellow("- %s skipped." % (name,)))
-        # runner.add("jasmine")
-        # runner.add("karma e2e")
 
         self.config = Bunch(
             autoreload=False,
@@ -277,10 +279,7 @@ class PolytesterRunner(object):
     def handle_file_change(self, test_name, event):
         os.system('clear')
         puts("Change detected in '%s' in the %s suite. Reloading..." % (event.src_path.split("/")[-1], test_name))
-        for name, p in self.processes.items():
-            p.terminate()
-            p.wait()
-        self.run()
+        self.kick_off_tests()
 
     def watch_thread(self, test):
         event_handler = AutoreloadHandler(runner=self, test_name=test.short_name, patterns=[test.watch_glob, ])
@@ -300,22 +299,34 @@ class PolytesterRunner(object):
         puts(colored.yellow("Keyboard interrupt. Stopping tests."))
         sys.exit(1)
 
+    def set_up_watch_threads(self):
+        if self.autoreload and self.threads == {}:
+            logging.basicConfig(level=logging.INFO,
+                                format='%(asctime)s - %(message)s',
+                                datefmt='%Y-%m-%d %H:%M:%S')
+            # TODO: handle multiple CIs
+            for t in self.tests:
+                self.threads[t.short_name] = Thread(target=self.watch_thread, args=(t,),)
+                self.threads[t.short_name].daemon = True
+                self.threads[t.short_name].start()
+
+    def kick_off_tests(self):
+        self.run_thread = Thread(target=self.run_tests)
+        self.run_thread.daemon = True
+        self.run_thread.start()
+
     def run(self):
+        self.kick_off_tests()
+        if self.autoreload:
+            while True:
+                time.sleep(1)
+
+    def run_tests(self):
         try:
             puts()
             puts("Running tests...")
             self.results = {}
             self.processes = {}
-
-            if self.autoreload and self.threads == {}:
-                logging.basicConfig(level=logging.INFO,
-                                    format='%(asctime)s - %(message)s',
-                                    datefmt='%Y-%m-%d %H:%M:%S')
-                # TODO: handle multiple CIs
-                for t in self.tests:
-                    self.threads[t.short_name] = Thread(target=self.watch_thread, args=(t,),)
-                    self.threads[t.short_name].daemon = True
-                    self.threads[t.short_name].start()
 
             if self.verbose:
                 with indent(2):
@@ -337,7 +348,12 @@ class PolytesterRunner(object):
                             time.sleep(0.5)
 
                         if p.returncode is not None:
-                            out, err = p.communicate()
+                            try:
+                                out, err = p.communicate()
+                            except ValueError:
+                                out = None
+                                err = None
+
                             if out:
                                 self.results[t.short_name].output += "\n%s" % out.decode("utf-8")
                                 puts(out.decode("utf-8"))
@@ -345,7 +361,8 @@ class PolytesterRunner(object):
                                 self.results[t.short_name].output += "\n%s" % err.decode("utf-8")
                                 puts(err.decode("utf-8"))
                             self.results[t.short_name].return_code = p.returncode
-                            del self.processes[t.short_name]
+                            if t.short_name in self.processes:
+                                del self.processes[t.short_name]
             else:
                 for t in self.tests:
                     self.processes[t.short_name] = subprocess.Popen(
@@ -373,7 +390,8 @@ class PolytesterRunner(object):
                             if err:
                                 self.results[name].output += "\n%s" % err.decode("utf-8")
                             self.results[name].return_code = p.returncode
-                            del self.processes[name]
+                            if name in self.processes:
+                                del self.processes[name]
 
             all_passed = True
             with indent(2):
@@ -411,7 +429,6 @@ class PolytesterRunner(object):
                         except:
                             pass
                         puts(colored.green("✔" + " %s:%s tests passed." % (name, pass_string)))
-
             if all_passed:
                 puts()
                 puts(colored.green("✔ All tests passed."))
@@ -429,3 +446,7 @@ class PolytesterRunner(object):
                         time.sleep(1)
         except KeyboardInterrupt:
             self.handle_keyboard_exception()
+
+    def start(self):
+        self.set_up_watch_threads()
+        self.run()

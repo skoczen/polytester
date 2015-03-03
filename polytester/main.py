@@ -36,7 +36,7 @@ parser.add_argument(
 def main():
     args = parser.parse_args()
     runner = PolytesterRunner(args)
-    runner.run()
+    runner.start()
 
 
 if __name__ == '__main__':
