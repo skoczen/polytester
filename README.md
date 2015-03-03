@@ -68,6 +68,7 @@ In addition, polytester progressively upgrades to extra-nice output for the fram
 - [Python Nose](https://nose.readthedocs.org/en/latest/)
 - [Python py.test](http://pytest.org/latest/)
 - [Python unittest](https://docs.python.org/3/library/unittest.html)
+- [Rspec](http://rspec.info/)
 - [Salad](https://github.com/salad/salad)
 
 But again, for extra clarity - if your test runner returns normal output codes, you can just drop it in and it'll work great.
@@ -332,11 +333,17 @@ Polytester leverages some fantastic libraries.  It wouldn't exist without them.
 
 Polytester has also has had help from lots of coders. Alphabetically:
 
+- [brandoncazander](https://github.com/brandoncazander) gave you more robust ansi parsing across older versions of python.
+- [calebmeyer](https://github.com/calebmeyer) gave you rspec support.
 - [joshfriend](https://github.com/joshfriend) added py.test support, and spotted a bug on python 2.7.x with `--ci`
 
 
 # Releases
 
+#### 1.1.3 - Feb 5, 2015
+
+- Rspec parser, thanks to [calebmeyer](https://github.com/calebmeyer)
+- Improvements to ansi parsing across older versions of python, thanks to [https://github.com/brandoncazander]
 
 #### 1.1.2 - Feb 5, 2015
 
