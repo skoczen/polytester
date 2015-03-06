@@ -342,7 +342,7 @@ Polytester has also has had help from lots of coders. Alphabetically:
 
 #### 1.2.0 - March 6, 2015
 
-- Pretty hefty rewrite of how the test runner and watch threads are handled, to fix the incompatabilities reported by [alecklandgraf](https://github.com/alecklandgraf)
+- Pretty hefty rewrite of how the test runner and watch threads are handled, to fix the incompatabilities reported by [alecklandgraf](https://github.com/alecklandgraf).
 
 
 #### 1.1.3 - March 3, 2015
