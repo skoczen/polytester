@@ -340,7 +340,12 @@ Polytester has also has had help from lots of coders. Alphabetically:
 
 # Releases
 
-#### 1.1.3 - Feb 5, 2015
+#### 1.2.0 - March 6, 2015
+
+- Pretty hefty rewrite of how the test runner and watch threads are handled, to fix the incompatabilities reported by [alecklandgraf](https://github.com/alecklandgraf)
+
+
+#### 1.1.3 - March 3, 2015
 
 - Rspec parser, thanks to [calebmeyer](https://github.com/calebmeyer).
 - Improvements to ansi parsing across older versions of python, thanks to (brandoncazander)[https://github.com/brandoncazander].
