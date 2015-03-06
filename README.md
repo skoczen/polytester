@@ -348,7 +348,7 @@ Polytester has also has had help from lots of coders. Alphabetically:
 #### 1.1.3 - March 3, 2015
 
 - Rspec parser, thanks to [calebmeyer](https://github.com/calebmeyer).
-- Improvements to ansi parsing across older versions of python, thanks to (brandoncazander)[https://github.com/brandoncazander].
+- Improvements to ansi parsing across older versions of python, thanks to [brandoncazander](https://github.com/brandoncazander).
 
 #### 1.1.2 - Feb 5, 2015
 
