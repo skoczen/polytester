@@ -10,7 +10,7 @@ from multiprocessing import Process
 import os
 import re
 import time
-from threading import Thread, Event
+from threading import Thread
 import traceback
 import subprocess
 import sys
@@ -28,8 +28,8 @@ from .parsers.protractor import ProtractorParser
 from .parsers.salad import SaladParser
 from .parsers.pytest import PyTestParser
 from .parsers.unittest import UnittestParser
-
 from .util import Bunch
+
 
 BUNDLED_PARSERS = [
     BaseParser,
@@ -43,8 +43,6 @@ BUNDLED_PARSERS = [
     SaladParser,
 ]
 DEFAULT_PARSER = DefaultParser
-
-run_thread = None
 
 
 class AutoreloadHandler(PatternMatchingEventHandler):
@@ -163,7 +161,8 @@ class PolytesterRunner(object):
                         skip_message = ""
                 elif self.autoreload:
                     if "watch_glob" in options:
-                        run_suite = True
+                        if all_tests or name in tests_to_run:
+                            run_suite = True
                     else:
                         skip_message = "no watch_glob"
                 elif all_tests or name in tests_to_run:
@@ -311,15 +310,23 @@ class PolytesterRunner(object):
                 self.threads[t.short_name].start()
 
     def kick_off_tests(self):
-        self.run_thread = Thread(target=self.run_tests)
-        self.run_thread.daemon = True
+        if hasattr(self, 'processes'):
+            for name, p in self.processes.items():
+                p.terminate()
+
+        if self.run_thread:
+            self.run_thread.terminate()
+
+        self.run_thread = Process(target=self.run_tests)
         self.run_thread.start()
 
     def run(self):
-        self.kick_off_tests()
         if self.autoreload:
+            self.kick_off_tests()
             while True:
                 time.sleep(1)
+        else:
+            self.run_tests()
 
     def run_tests(self):
         try:
