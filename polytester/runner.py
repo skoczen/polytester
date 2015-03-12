@@ -95,9 +95,9 @@ class PolytesterRunner(object):
             puts(traceback.format_exc(limit=1))
         sys.exit(1)
 
-    def strip_ansi_colors(self, string):
-        ansi_escape = re.compile(r's/\x1b\[[0-9;]*m//g')
-        return ansi_escape.sub('', repr(string))
+    def strip_ansi_escape_codes(self, string):
+        ansi_escape = re.compile(r'\x1b\[([0-9,A-Z]{1,2}(;[0-9]{1,2})?(;[0-9]{3})?)?[m|K]?')
+        return ansi_escape.sub('', string)
 
     def __init__(self, arg_options):
         # arg_options is expected to be an argparse namespace.
@@ -405,7 +405,7 @@ class PolytesterRunner(object):
                 for t in self.tests:
                     name = t.short_name
                     r = self.results[name]
-                    r.cleaned_output = self.strip_ansi_colors(r.output)
+                    r.cleaned_output = self.strip_ansi_escape_codes(r.output)
 
                     r.passed = r.parser.tests_passed(r)
                     pass_string = ""
