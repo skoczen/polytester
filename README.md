@@ -336,9 +336,15 @@ Polytester has also has had help from lots of coders. Alphabetically:
 - [brandoncazander](https://github.com/brandoncazander) gave you more robust ansi parsing across older versions of python.
 - [calebmeyer](https://github.com/calebmeyer) gave you rspec support.
 - [joshfriend](https://github.com/joshfriend) added py.test support, and spotted a bug on python 2.7.x with `--ci`.
+- [jpulec](https://github.com/jpulec) fixed up karma test parsing for you.
 
 
 # Releases
+
+#### 1.2.1 - March 12, 2015
+
+- Improvements to karma test output parsing, thanks to [jpulec](https://github.com/jpulec).
+
 
 #### 1.2.0 - March 6, 2015
 
