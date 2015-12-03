@@ -329,52 +329,20 @@ class PolytesterRunner(object):
             self.run_tests()
 
     def run_tests(self):
+        def print_if_verbose(output):
+            if self.verbose:
+                puts(output)
+
         try:
             puts()
             puts("Running tests...")
             self.results = {}
             self.processes = {}
 
-            if self.verbose:
-                with indent(2):
-                    for t in self.tests:
-                        p = subprocess.Popen(t.command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                        self.processes[t.short_name] = p
-                        self.results[t.short_name] = Bunch(
-                            output=u"",
-                            return_code=None,
-                            parser=t.parser,
-                            test_obj=t,
-                            passed=None,
-                        )
-                        while p.poll() is None:
-                            line = self.non_blocking_read(p.stdout)
-                            if line:
-                                self.results[t.short_name].output += "\n%s" % line.decode("utf-8")
-                                puts(line.decode("utf-8"))
-                            time.sleep(0.5)
-
-                        if p.returncode is not None:
-                            try:
-                                out, err = p.communicate()
-                            except ValueError:
-                                out = None
-                                err = None
-
-                            if out:
-                                self.results[t.short_name].output += "\n%s" % out.decode("utf-8")
-                                puts(out.decode("utf-8"))
-                            if err:
-                                self.results[t.short_name].output += "\n%s" % err.decode("utf-8")
-                                puts(err.decode("utf-8"))
-                            self.results[t.short_name].return_code = p.returncode
-                            if t.short_name in self.processes:
-                                del self.processes[t.short_name]
-            else:
+            with indent(2):
                 for t in self.tests:
-                    self.processes[t.short_name] = subprocess.Popen(
-                        t.command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-                    )
+                    p = subprocess.Popen(t.command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                    self.processes[t.short_name] = p
                     self.results[t.short_name] = Bunch(
                         output=u"",
                         return_code=None,
@@ -382,23 +350,29 @@ class PolytesterRunner(object):
                         test_obj=t,
                         passed=None,
                     )
-                while len(self.processes.items()) > 0:
-                    for name, p in list(self.processes.items()):
-                        while p.poll() is None:
-                            line = self.non_blocking_read(p.stdout)
-                            if line:
-                                self.results[name].output += "\n%s" % line.decode("utf-8")
-                            time.sleep(0.5)
+                    while p.poll() is None:
+                        line = self.non_blocking_read(p.stdout)
+                        if line:
+                            self.results[t.short_name].output += "\n%s" % line.decode("utf-8")
+                            print_if_verbose(line.decode("utf-8"))
+                        time.sleep(0.5)
 
-                        if p.returncode is not None:
+                    if p.returncode is not None:
+                        try:
                             out, err = p.communicate()
-                            if out:
-                                self.results[name].output += "\n%s" % out.decode("utf-8")
-                            if err:
-                                self.results[name].output += "\n%s" % err.decode("utf-8")
-                            self.results[name].return_code = p.returncode
-                            if name in self.processes:
-                                del self.processes[name]
+                        except ValueError:
+                            out = None
+                            err = None
+
+                        if out:
+                            self.results[t.short_name].output += "\n%s" % out.decode("utf-8")
+                            print_if_verbose(out.decode("utf-8"))
+                        if err:
+                            self.results[t.short_name].output += "\n%s" % err.decode("utf-8")
+                            print_if_verbose(err.decode("utf-8"))
+                        self.results[t.short_name].return_code = p.returncode
+                        if t.short_name in self.processes:
+                            del self.processes[t.short_name]
 
             all_passed = True
             with indent(2):
