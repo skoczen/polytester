@@ -84,12 +84,13 @@ class PolytesterRunner(object):
     def _print_error(self, message):
         puts(colored.red("ERROR: ") + message)
 
-    def _fail(self, message):
+    def _exit(self, message):
         self._print_error(message)
-        if not self.autoreload:
-            sys.exit(1)
+        sys.exit(1)
 
-    def _nice_traceback_and_quit(self):
+    def _nice_traceback_and_quit(self, message=None):
+        if message:
+            self._print_error(message)
         puts("Traceback: ")
         with indent(2):
             puts(traceback.format_exc(limit=1))
@@ -142,12 +143,11 @@ class PolytesterRunner(object):
                     self.test_config = load(f)
                     self.test_config = OrderedDict(sorted(self.test_config.items(), key=lambda x: x[0]))
             except IOError:
-                self._fail("Config file %s not found." % config_file)
+                self._exit("Config file %s not found." % config_file)
             except ScannerError:
-                self._print_error("Trouble parsing %s." % config_file)
-                self._nice_traceback_and_quit()
+                self._nice_traceback_and_quit("Trouble parsing %s." % config_file)
             except:
-                self._fail(puts(traceback.format_exc()))
+                self._nice_traceback_and_quit()
 
             current_num = 0
             for name, options in self.test_config.items():
@@ -175,7 +175,7 @@ class PolytesterRunner(object):
                 if run_suite:
                     if wip:
                         if "wip_command" not in options:
-                            self._fail("%s is missing a wip_command." % name)
+                            self._exit("%s is missing a wip_command." % name)
                         else:
                             command = options["wip_command"]
                             del options["wip_command"]
@@ -186,7 +186,7 @@ class PolytesterRunner(object):
 
                     else:
                         if "command" not in options:
-                            self._fail("%s is missing a command." % name)
+                            self._exit("%s is missing a command." % name)
                         else:
                             command = options["command"]
                             del options["command"]
@@ -203,7 +203,7 @@ class PolytesterRunner(object):
                         try:
                             components = options["parser"].split(".")
                             if len(components) < 2:
-                                self._fail(
+                                self._exit(
                                     "'%s' in the %s section of tests.yml does not have both a module and a class."
                                     "Please format as module.ParserClass." % (options["parser"], name)
                                 )
@@ -214,7 +214,7 @@ class PolytesterRunner(object):
                             i = importlib.import_module(module)
                             options["parser"] = i.getattr(class_name)()
                         except ImportError:
-                            self._fail(
+                            self._exit(
                                 "Unable to find a parser called '%s' for %s on your PYTHONPATH." %
                                 (options["parser"], name)
                             )
@@ -229,8 +229,7 @@ class PolytesterRunner(object):
                     try:
                         self.add(command, **options)
                     except TypeError:
-                        self._print_error("Unsupported attribute in tests.yml file.")
-                        self._nice_traceback_and_quit()
+                        self._nice_traceback_and_quit("Unsupported attribute in tests.yml file.")
 
                     puts(colored.green("✔") + " %s detected as %s tests." % (name, options["parser"].name))
                 else:
@@ -329,52 +328,20 @@ class PolytesterRunner(object):
             self.run_tests()
 
     def run_tests(self):
+        def print_if_verbose(output):
+            if self.verbose:
+                puts(output)
+
         try:
             puts()
             puts("Running tests...")
             self.results = {}
             self.processes = {}
 
-            if self.verbose:
-                with indent(2):
-                    for t in self.tests:
-                        p = subprocess.Popen(t.command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                        self.processes[t.short_name] = p
-                        self.results[t.short_name] = Bunch(
-                            output=u"",
-                            return_code=None,
-                            parser=t.parser,
-                            test_obj=t,
-                            passed=None,
-                        )
-                        while p.poll() is None:
-                            line = self.non_blocking_read(p.stdout)
-                            if line:
-                                self.results[t.short_name].output += "\n%s" % line.decode("utf-8")
-                                puts(line.decode("utf-8"))
-                            time.sleep(0.5)
-
-                        if p.returncode is not None:
-                            try:
-                                out, err = p.communicate()
-                            except ValueError:
-                                out = None
-                                err = None
-
-                            if out:
-                                self.results[t.short_name].output += "\n%s" % out.decode("utf-8")
-                                puts(out.decode("utf-8"))
-                            if err:
-                                self.results[t.short_name].output += "\n%s" % err.decode("utf-8")
-                                puts(err.decode("utf-8"))
-                            self.results[t.short_name].return_code = p.returncode
-                            if t.short_name in self.processes:
-                                del self.processes[t.short_name]
-            else:
+            with indent(2):
                 for t in self.tests:
-                    self.processes[t.short_name] = subprocess.Popen(
-                        t.command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-                    )
+                    p = subprocess.Popen(t.command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                    self.processes[t.short_name] = p
                     self.results[t.short_name] = Bunch(
                         output=u"",
                         return_code=None,
@@ -382,23 +349,29 @@ class PolytesterRunner(object):
                         test_obj=t,
                         passed=None,
                     )
-                while len(self.processes.items()) > 0:
-                    for name, p in list(self.processes.items()):
-                        while p.poll() is None:
-                            line = self.non_blocking_read(p.stdout)
-                            if line:
-                                self.results[name].output += "\n%s" % line.decode("utf-8")
-                            time.sleep(0.5)
+                    while p.poll() is None:
+                        line = self.non_blocking_read(p.stdout)
+                        if line:
+                            self.results[t.short_name].output += "\n%s" % line.decode("utf-8")
+                            print_if_verbose(line.decode("utf-8"))
+                        time.sleep(0.5)
 
-                        if p.returncode is not None:
+                    if p.returncode is not None:
+                        try:
                             out, err = p.communicate()
-                            if out:
-                                self.results[name].output += "\n%s" % out.decode("utf-8")
-                            if err:
-                                self.results[name].output += "\n%s" % err.decode("utf-8")
-                            self.results[name].return_code = p.returncode
-                            if name in self.processes:
-                                del self.processes[name]
+                        except ValueError:
+                            out = None
+                            err = None
+
+                        if out:
+                            self.results[t.short_name].output += "\n%s" % out.decode("utf-8")
+                            print_if_verbose(out.decode("utf-8"))
+                        if err:
+                            self.results[t.short_name].output += "\n%s" % err.decode("utf-8")
+                            print_if_verbose(err.decode("utf-8"))
+                        self.results[t.short_name].return_code = p.returncode
+                        if t.short_name in self.processes:
+                            del self.processes[t.short_name]
 
             all_passed = True
             with indent(2):
@@ -444,7 +417,7 @@ class PolytesterRunner(object):
                     while True:
                         time.sleep(1)
             else:
-                self._fail("✘ Tests failed.")
+                self._print_error("✘ Tests failed.")
                 puts()
                 if not self.autoreload:
                     sys.exit(1)

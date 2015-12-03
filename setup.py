@@ -9,7 +9,8 @@ SOURCE_DIR = os.path.join(ROOT_DIR)
 VERSION = "1.2.1"
 
 reqs = []
-with open("requirements.txt", "r+") as f:
+requirements_file = os.path.join(SOURCE_DIR, "requirements.txt")
+with open(requirements_file, "r+") as f:
     for line in f.readlines():
         reqs.append(line.strip())
 
