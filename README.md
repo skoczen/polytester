@@ -6,7 +6,7 @@ Polytester is a simple, groovy multi-language test runner.
 It makes it easy to run tests in your polygot projects.  Run python, javascript, ruby, java, and more side by side.  It abstracts away the pain and config and lets you just get get developing. Easily.
 
 Polytester Just Works with any testing framework that runs in the shell (yo, that's pretty much everything on the planet), and ships with extra-smooth integration for lots of common frameworks including django, karma, protractor, and more.
-Polytester was built by [Steven Skoczen](http://stevenskoczen.com) at [BuddyUp](http://buddyup.org).  If you're in school, and could use a study buddy, check us out!
+Polytester was built by [Steven Skoczen](http://stevenskoczen.com).
 
 [![Build Status](https://travis-ci.org/skoczen/polytester.svg)](https://travis-ci.org/skoczen/polytester) ![Pypi Badge](https://badge.fury.io/py/polytester.png)   ![Downloads Badge](https://img.shields.io/pypi/dm/polytester.svg)
 
