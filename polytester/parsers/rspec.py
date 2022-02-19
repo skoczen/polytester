@@ -14,13 +14,13 @@ class RspecParser(DefaultParser):
 
     def num_total(self, result):
         # 10 examples, 0 failures
-        m = re.findall('(\d+) examples', result.output)
+        m = re.findall("(\d+) examples", result.output)
         return int(m[-1])
 
     def num_failed(self, result):
         # 10 examples, 1 failure
         # 10 examples, 9 failures
-        m = re.findall('(\d+) failure', result.output)
+        m = re.findall("(\d+) failure", result.output)
         return int(m[-1])
 
     def num_error(self, result):

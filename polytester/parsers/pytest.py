@@ -11,7 +11,7 @@ class PyTestParser(DefaultParser):
 
     def num_passed(self, result):
         # 99 passed in 99 seconds.
-        m = re.findall('(\d+) passed', result.output)
+        m = re.findall("(\d+) passed", result.output)
         if len(m) > 0:
             return int(m[-1])
         return 0
@@ -21,14 +21,14 @@ class PyTestParser(DefaultParser):
 
     def num_failed(self, result):
         failed = 0
-        m = re.findall('(\d+) failed', result.output)
+        m = re.findall("(\d+) failed", result.output)
         if len(m) > 0:
             failed += int(m[-1])
         failed += self.num_error(result)
         return failed
 
     def num_error(self, result):
-        m = re.findall('(\d+) error', result.output)
+        m = re.findall("(\d+) error", result.output)
         if len(m) > 0:
             return int(m[-1])
         return 0

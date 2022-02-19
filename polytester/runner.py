@@ -80,7 +80,6 @@ class AutoreloadHandler(PatternMatchingEventHandler):
 
 
 class PolytesterRunner(object):
-
     def _print_error(self, message):
         puts(colored.red("ERROR: ") + message)
 
@@ -96,8 +95,10 @@ class PolytesterRunner(object):
         sys.exit(1)
 
     def strip_ansi_escape_codes(self, string):
-        ansi_escape = re.compile(r'\x1b\[([0-9,A-Z]{1,2}(;[0-9]{1,2})?(;[0-9]{3})?)?[m|K]?')
-        return ansi_escape.sub('', string)
+        ansi_escape = re.compile(
+            r"\x1b\[([0-9,A-Z]{1,2}(;[0-9]{1,2})?(;[0-9]{3})?)?[m|K]?"
+        )
+        return ansi_escape.sub("", string)
 
     def __init__(self, arg_options):
         # arg_options is expected to be an argparse namespace.
@@ -129,7 +130,7 @@ class PolytesterRunner(object):
 
         # Detect and configure parsers
         if self.autoreload:
-            os.system('clear')
+            os.system("clear")
 
         puts("Detecting...")
         with indent(2):
@@ -140,7 +141,9 @@ class PolytesterRunner(object):
             try:
                 with open(os.path.join(os.getcwd(), config_file)) as f:
                     self.test_config = load(f)
-                    self.test_config = OrderedDict(sorted(self.test_config.items(), key=lambda x: x[0]))
+                    self.test_config = OrderedDict(
+                        sorted(self.test_config.items(), key=lambda x: x[0])
+                    )
             except IOError:
                 self._fail("Config file %s not found." % config_file)
             except ScannerError:
@@ -205,7 +208,8 @@ class PolytesterRunner(object):
                             if len(components) < 2:
                                 self._fail(
                                     "'%s' in the %s section of tests.yml does not have both a module and a class."
-                                    "Please format as module.ParserClass." % (options["parser"], name)
+                                    "Please format as module.ParserClass."
+                                    % (options["parser"], name)
                                 )
                             else:
                                 module = ".".join(components[:-1])
@@ -215,8 +219,8 @@ class PolytesterRunner(object):
                             options["parser"] = i.getattr(class_name)()
                         except ImportError:
                             self._fail(
-                                "Unable to find a parser called '%s' for %s on your PYTHONPATH." %
-                                (options["parser"], name)
+                                "Unable to find a parser called '%s' for %s on your PYTHONPATH."
+                                % (options["parser"], name)
                             )
                     else:
                         for p in self.parsers:
@@ -232,10 +236,15 @@ class PolytesterRunner(object):
                         self._print_error("Unsupported attribute in tests.yml file.")
                         self._nice_traceback_and_quit()
 
-                    puts(colored.green("✔") + " %s detected as %s tests." % (name, options["parser"].name))
+                    puts(
+                        colored.green("✔")
+                        + " %s detected as %s tests." % (name, options["parser"].name)
+                    )
                 else:
                     if skip_message != "":
-                        puts(colored.yellow("- %s skipped (%s)." % (name, skip_message)))
+                        puts(
+                            colored.yellow("- %s skipped (%s)." % (name, skip_message))
+                        )
                     else:
                         puts(colored.yellow("- %s skipped." % (name,)))
 
@@ -246,7 +255,15 @@ class PolytesterRunner(object):
             wip=False,
         )
 
-    def add(self, test_command, parser=None, watch_glob=None, watch_dir=None, short_name=None, autodetected=None):
+    def add(
+        self,
+        test_command,
+        parser=None,
+        watch_glob=None,
+        watch_dir=None,
+        short_name=None,
+        autodetected=None,
+    ):
         if not short_name:
             short_name = test_command.split(" ")[0]
         if not parser:
@@ -254,14 +271,16 @@ class PolytesterRunner(object):
         if not watch_dir:
             watch_dir = "."
 
-        self.tests.append(Bunch(
-            command=test_command,
-            parser=parser,
-            autodetected=autodetected,
-            watch_glob=watch_glob,
-            watch_dir=watch_dir,
-            short_name=short_name,
-        ))
+        self.tests.append(
+            Bunch(
+                command=test_command,
+                parser=parser,
+                autodetected=autodetected,
+                watch_glob=watch_glob,
+                watch_dir=watch_dir,
+                short_name=short_name,
+            )
+        )
 
     def non_blocking_read(self, output):
         fd = output.fileno()
@@ -276,12 +295,21 @@ class PolytesterRunner(object):
         self.parsers.append(parser_class())
 
     def handle_file_change(self, test_name, event):
-        os.system('clear')
-        puts("Change detected in '%s' in the %s suite. Reloading..." % (event.src_path.split("/")[-1], test_name))
+        os.system("clear")
+        puts(
+            "Change detected in '%s' in the %s suite. Reloading..."
+            % (event.src_path.split("/")[-1], test_name)
+        )
         self.kick_off_tests()
 
     def watch_thread(self, test):
-        event_handler = AutoreloadHandler(runner=self, test_name=test.short_name, patterns=[test.watch_glob, ])
+        event_handler = AutoreloadHandler(
+            runner=self,
+            test_name=test.short_name,
+            patterns=[
+                test.watch_glob,
+            ],
+        )
         observer = Observer()
         observer.schedule(event_handler, test.watch_dir, recursive=True)
         observer.start()
@@ -300,17 +328,22 @@ class PolytesterRunner(object):
 
     def set_up_watch_threads(self):
         if self.autoreload and self.threads == {}:
-            logging.basicConfig(level=logging.INFO,
-                                format='%(asctime)s - %(message)s',
-                                datefmt='%Y-%m-%d %H:%M:%S')
+            logging.basicConfig(
+                level=logging.INFO,
+                format="%(asctime)s - %(message)s",
+                datefmt="%Y-%m-%d %H:%M:%S",
+            )
             # TODO: handle multiple CIs
             for t in self.tests:
-                self.threads[t.short_name] = Thread(target=self.watch_thread, args=(t,),)
+                self.threads[t.short_name] = Thread(
+                    target=self.watch_thread,
+                    args=(t,),
+                )
                 self.threads[t.short_name].daemon = True
                 self.threads[t.short_name].start()
 
     def kick_off_tests(self):
-        if hasattr(self, 'processes'):
+        if hasattr(self, "processes"):
             for name, p in self.processes.items():
                 p.terminate()
 
@@ -338,10 +371,15 @@ class PolytesterRunner(object):
             if self.verbose:
                 with indent(2):
                     for t in self.tests:
-                        p = subprocess.Popen(t.command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                        p = subprocess.Popen(
+                            t.command,
+                            shell=True,
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE,
+                        )
                         self.processes[t.short_name] = p
                         self.results[t.short_name] = Bunch(
-                            output=u"",
+                            output="",
                             return_code=None,
                             parser=t.parser,
                             test_obj=t,
@@ -350,7 +388,9 @@ class PolytesterRunner(object):
                         while p.poll() is None:
                             line = self.non_blocking_read(p.stdout)
                             if line:
-                                self.results[t.short_name].output += "\n%s" % line.decode("utf-8")
+                                self.results[
+                                    t.short_name
+                                ].output += "\n%s" % line.decode("utf-8")
                                 puts(line.decode("utf-8"))
                             time.sleep(0.5)
 
@@ -362,10 +402,14 @@ class PolytesterRunner(object):
                                 err = None
 
                             if out:
-                                self.results[t.short_name].output += "\n%s" % out.decode("utf-8")
+                                self.results[
+                                    t.short_name
+                                ].output += "\n%s" % out.decode("utf-8")
                                 puts(out.decode("utf-8"))
                             if err:
-                                self.results[t.short_name].output += "\n%s" % err.decode("utf-8")
+                                self.results[
+                                    t.short_name
+                                ].output += "\n%s" % err.decode("utf-8")
                                 puts(err.decode("utf-8"))
                             self.results[t.short_name].return_code = p.returncode
                             if t.short_name in self.processes:
@@ -373,10 +417,13 @@ class PolytesterRunner(object):
             else:
                 for t in self.tests:
                     self.processes[t.short_name] = subprocess.Popen(
-                        t.command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+                        t.command,
+                        shell=True,
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
                     )
                     self.results[t.short_name] = Bunch(
-                        output=u"",
+                        output="",
                         return_code=None,
                         parser=t.parser,
                         test_obj=t,
@@ -387,15 +434,21 @@ class PolytesterRunner(object):
                         while p.poll() is None:
                             line = self.non_blocking_read(p.stdout)
                             if line:
-                                self.results[name].output += "\n%s" % line.decode("utf-8")
+                                self.results[name].output += "\n%s" % line.decode(
+                                    "utf-8"
+                                )
                             time.sleep(0.5)
 
                         if p.returncode is not None:
                             out, err = p.communicate()
                             if out:
-                                self.results[name].output += "\n%s" % out.decode("utf-8")
+                                self.results[name].output += "\n%s" % out.decode(
+                                    "utf-8"
+                                )
                             if err:
-                                self.results[name].output += "\n%s" % err.decode("utf-8")
+                                self.results[name].output += "\n%s" % err.decode(
+                                    "utf-8"
+                                )
                             self.results[name].return_code = p.returncode
                             if name in self.processes:
                                 del self.processes[name]
@@ -426,7 +479,7 @@ class PolytesterRunner(object):
                         puts(colored.red("✘ %s:%s tests failed." % (name, pass_string)))
 
                         with indent(2):
-                            puts(u"%s" % r.output)
+                            puts("%s" % r.output)
                     else:
                         try:
                             if hasattr(r.parser, "num_passed"):
@@ -435,7 +488,11 @@ class PolytesterRunner(object):
                                 pass_string = ""
                         except:
                             pass
-                        puts(colored.green("✔" + " %s:%s tests passed." % (name, pass_string)))
+                        puts(
+                            colored.green(
+                                "✔" + " %s:%s tests passed." % (name, pass_string)
+                            )
+                        )
             if all_passed:
                 puts()
                 puts(colored.green("✔ All tests passed."))

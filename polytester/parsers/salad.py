@@ -10,12 +10,12 @@ class SaladParser(DefaultParser):
 
     def num_passed(self, result):
         # 3 steps (3 passed)
-        m = re.findall('(\d+) steps \((\d+) passed\)', result.cleaned_output)
+        m = re.findall("(\d+) steps \((\d+) passed\)", result.cleaned_output)
         return int(m[-1][1])
 
     def num_total(self, result):
         # 3 steps (3 passed)
-        m = re.findall('(\d+) steps \((\d+) passed\)', result.cleaned_output)
+        m = re.findall("(\d+) steps \((\d+) passed\)", result.cleaned_output)
         return int(m[-1][0])
 
     def num_failed(self, result):
