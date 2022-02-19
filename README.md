@@ -341,6 +341,11 @@ Polytester has also has had help from lots of coders. Alphabetically:
 
 # Releases
 
+#### 1.2.2 - Feb 19, 2022
+
+- Unpins requirements, adds newer python coverage to make resolutions with the new pip resolver easier.
+
+
 #### 1.2.1 - March 12, 2015
 
 - Improvements to karma test output parsing, thanks to [jpulec](https://github.com/jpulec).

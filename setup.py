@@ -6,7 +6,7 @@ from polytester import __name__ as package_name
 DESCRIPTION = "A simple, easy-to-use multi-language test runner."
 ROOT_DIR = os.path.dirname(__file__)
 SOURCE_DIR = os.path.join(ROOT_DIR)
-VERSION = "1.2.1"
+VERSION = "1.2.2"
 
 reqs = []
 with open("requirements.txt", "r+") as f:
