@@ -14,24 +14,21 @@ with open("requirements.txt", "r+") as f:
         reqs.append(line.strip())
 
 try:
-    import pypandoc
-    long_description = pypandoc.convert('README.md', 'rst')
-except (IOError, ImportError, OSError, RuntimeError):
-    try:
-        import os
-        long_description = open(os.path.join(os.path.dirname(__file__), 'README.md')).read()
-    except:
-        long_description = DESCRIPTION + '\n'
+    import os
+    long_description = open(os.path.join(os.path.dirname(__file__), 'README.md')).read()
+except:
+    long_description = DESCRIPTION + '\n'
 
 setup(
     name=package_name,
     description=DESCRIPTION,
     long_description=long_description,
+    long_description_content_type="text/markdown",
     author="Steven Skoczen",
     author_email="skoczen@gmail.com",
     url="https://github.com/skoczen/polytester",
     version=VERSION,
-    download_url=['https://github.com/skoczen/polytester/tarball/%s' % VERSION, ],
+    download_url=f"https://github.com/skoczen/polytester/archive/refs/tags/{VERSION}.tar.gz",
     install_requires=reqs,
     packages=find_packages(),
     include_package_data=True,
