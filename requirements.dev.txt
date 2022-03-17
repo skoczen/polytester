@@ -1,0 +1,10 @@
+clint
+PyYAML
+watchdog
+
+wheel
+mock
+flake8
+pep257
+pytest
+coverage

@@ -18,6 +18,10 @@ from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
 from yaml import load
 from yaml.scanner import ScannerError
+try:
+    from yaml import CLoader as Loader, CDumper as Dumper
+except ImportError:
+    from yaml import Loader, Dumper
 
 from .parsers.base import BaseParser
 from .parsers.default import DefaultParser
@@ -140,7 +144,11 @@ class PolytesterRunner(object):
                 self.register_parser(p)
             try:
                 with open(os.path.join(os.getcwd(), config_file)) as f:
-                    self.test_config = load(f)
+                    try:
+                        self.test_config = load(f, Loader=Loader)
+                    except:
+                        self.test_config = load(f)
+
                     self.test_config = OrderedDict(
                         sorted(self.test_config.items(), key=lambda x: x[0])
                     )

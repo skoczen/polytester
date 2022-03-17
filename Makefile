@@ -1,10 +1,10 @@
 # Python settings
 ifndef TRAVIS
 	ifndef PYTHON_MAJOR
-		PYTHON_MAJOR := 2
+		PYTHON_MAJOR := 3
 	endif
 	ifndef PYTHON_MINOR
-		PYTHON_MINOR := 7
+		PYTHON_MINOR := 9
 	endif
 	ENV := env/py$(PYTHON_MAJOR)$(PYTHON_MINOR)
 else
@@ -110,13 +110,21 @@ test: depends
 	$(COVERAGE) run --source $(PACKAGE) --branch -m py.test tests
 	$(COVERAGE) report --show-missing
 
-test-all: test-py27 test-py33 test-py34
+test-all: test-py27 test-py36 test-py37 test-py38 test-py39
 test-py27:
 	PYTHON_MAJOR=2 PYTHON_MINOR=7 $(MAKE) test
 test-py33:
 	PYTHON_MAJOR=3 PYTHON_MINOR=3 $(MAKE) test
 test-py34:
 	PYTHON_MAJOR=3 PYTHON_MINOR=4 $(MAKE) test
+test-py36:
+	PYTHON_MAJOR=3 PYTHON_MINOR=6 $(MAKE) test
+test-py37:
+	PYTHON_MAJOR=3 PYTHON_MINOR=7 $(MAKE) test
+test-py38:
+	PYTHON_MAJOR=3 PYTHON_MINOR=8 $(MAKE) test
+test-py39:
+	PYTHON_MAJOR=3 PYTHON_MINOR=9 $(MAKE) test
 
 .PHONY: htmlcov
 htmlcov: test
