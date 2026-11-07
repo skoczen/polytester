@@ -16,7 +16,7 @@ with open("requirements.txt", "r+") as f:
 try:
     import os
     long_description = open(os.path.join(os.path.dirname(__file__), 'README.md')).read()
-except:
+except OSError:
     long_description = DESCRIPTION + '\n'
 
 setup(
